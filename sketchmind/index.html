@@ -30,40 +30,40 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-title="Tracing on paper" data-min="1">
+  <section class="slide withsec" data-demo="vid-hand" data-segs="0,5.5,16.5" data-title="Tracing on paper" data-min="1">
     <div class="sec"><b>01</b>Motivation</div>
-    <div class="alice">
-      <img src="assets/alice.jpg" alt="Illustration: Alice tracing Bubble Sort on paper, surrounded by crossed-out arrays and question marks">
+    <div class="vidslide">
+      <div class="vwrap"><video src="media/hand-paper.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
         <div class="who">Alice learns Bubble Sort</div>
         <h2>When learning algorithms, we often begin with pen-and-paper tracing.</h2>
-        <p class="arr">A = [3, 1, 7, 4]</p>
-        <p class="beat">Compare 3 and 1… cross out the old array… rewrite a new one… continue with the next pair.</p>
+        <p class="cap" data-beat="1">She writes an input: [5, 2, 3, 4, 1].</p>
+        <p class="cap" data-beat="2">Compare 5 and 2, swap, rewrite the array… compare the next pair, swap, rewrite again.</p>
       </div>
     </div>
     <aside class="notes">
-      // One beat.
+      // Two beats; each plays one part of the hand-drawn clip.
       When learning algorithms, we often begin with pen-and-paper tracing: manually simulating how data changes step by step.
-      Let's follow Alice, a student learning Bubble Sort with an input array A = [3, 1, 7, 4].
-      [1] She starts by comparing 3 and 1… crosses out the old array… rewrites a new one… then continues with the next pair.
+      [1] Let's follow Alice, a student learning Bubble Sort. She writes an input array: 5, 2, 3, 4, 1.
+      [2] She compares 5 and 2, swaps them, rewrites the array… then continues with the next pair, and the next.
     </aside>
   </section>
 
-  <section class="slide withsec" data-title="Three challenges" data-min="1.5">
+  <section class="slide withsec" data-demo="vid-chal" data-segs="0,15.25,19.65,23" data-capmode="cumulative" data-title="Three challenges" data-min="1.5">
     <div class="sec"><b>01</b>Motivation</div>
     <div class="chal">
       <div class="list">
-        <div class="c"><div class="t"><small>C1</small>Trace explosion</div><div class="d">Intermediate states pile up. Redrawing is tedious and error-prone, so people skip steps.</div></div>
-        <div class="c beat"><div class="t"><small>C2</small>The abstraction leap</div><div class="d">Steps stay tied to concrete values. It's hard to see a repeated compare-and-swap as an inner loop.</div></div>
-        <div class="c beat"><div class="t"><small>C3</small>Instance overfitting</div><div class="d">A "happy path" example passes. Test cases say <i>that</i> it fails, not <i>why</i>, and they look nothing like the learner's example.</div></div>
+        <div class="c cap" data-beat="1"><div class="t"><small>C1</small>Trace explosion</div><div class="d">Intermediate states pile up. Redrawing is tedious and error-prone, so people skip steps.</div></div>
+        <div class="c cap" data-beat="2"><div class="t"><small>C2</small>The abstraction leap</div><div class="d">Steps stay tied to concrete values. It's hard to see a repeated compare-and-swap as an inner loop.</div></div>
+        <div class="c cap" data-beat="3"><div class="t"><small>C3</small>Instance overfitting</div><div class="d">A "happy path" example passes. Test cases say <i>that</i> it fails, not <i>why</i>, and they look nothing like the learner's example.</div></div>
       </div>
-      <div><img src="assets/user_sketches2.png" alt="Participants' pen-and-paper sketches: missed errors, omitted steps, flip difficulty, lack of structure, varying abstraction"><div class="src">Pen-and-paper sketches from our study participants</div></div>
+      <div class="vwrap"><video src="media/hand-challenges.mp4" muted playsinline preload="auto"></video></div>
     </div>
     <aside class="notes">
-      // Two beats. The figure shows real sketches from our study participants.
-      C1, trace explosion. As the process continues, her page fills with scratched-out numbers and fragmented states. To cope, Alice starts skipping steps or compressing operations, but now mistakes can easily go unnoticed. You can see the same thing in our participants' sketches: wrong comparisons like "8 < 5", and arrows meaning "and so on".
-      [1] C2, the abstraction leap. Alice senses she is repeating the same actions, but she struggles to describe the pattern. Her handwriting becomes rows of numbers without structure, so it's hard to see the logic or how the steps connect.
-      [2] C3, instance overfitting. After one pass, the array looks sorted, so Alice concludes that Bubble Sort only needs one pass. But that conclusion rests on a single example, and her reasoning fails to generalize.
+      // Three beats; each plays the part of the hand-drawn clip where that challenge's label appears (sped up 1.5×).
+      [1] C1, trace explosion. As the process continues, her page fills with rewritten arrays. To cope, she starts skipping steps or compressing operations, and mistakes go unnoticed: here a drawing error, then skipped steps.
+      [2] C2, the abstraction leap. She senses she is repeating the same actions, but she struggles to describe the pattern. The page is rows of numbers without structure.
+      [3] C3, instance overfitting. After one pass, the array may look sorted, so she concludes Bubble Sort only needs one pass. That conclusion rests on a single example and does not generalize.
     </aside>
   </section>
 
@@ -112,7 +112,7 @@
       <div class="side">
         <div class="live">live · SketchMind</div>
         <h2>Pen strokes become executable operations.</h2>
-        <p class="cap" data-beat="0">Alice’s array, about to be sketched.</p>
+        <p class="cap" data-beat="0">Back in SketchMind: Alice’s array [3, 1, 7, 4], about to be sketched.</p>
         <p class="cap" data-beat="1"><b class="pc-data">Data</b> pen: 3 1 7 4 is recognized as an array.</p>
         <p class="cap" data-beat="2"><b class="pc-cmp">Compare</b> 3 and 1 → <code>is_bigger(3, 1)</code> = True.</p>
         <p class="cap" data-beat="3"><b class="pc-swp">Swap</b> them: the numbers move; nothing is redrawn.</p>
@@ -122,6 +122,7 @@
     </div>
     <aside class="notes">
       // Five beats. This is the real SketchMind app (iframe), driven by a script: every stroke is a pointer event on its canvas.
+      Now in SketchMind. Alice starts again, with A = [3, 1, 7, 4].
       [1] Alice sketches an array on the canvas, and the system recognizes it as an array.
       [2] She selects the compare tool and marks two numbers. The result appears on the right-hand panel: 3 is greater than 1.
       [3] She then uses the swap tool to exchange them. The numbers move; nothing is redrawn.
@@ -352,6 +353,26 @@
     </aside>
   </section>
 
+  <section class="slide withsec" data-title="Participants' paper sketches" data-min="1">
+    <div class="sec"><b>03</b>Results</div>
+    <div class="chal sketches">
+      <div class="list">
+        <div class="c"><div class="t">Missed drawing errors</div><div class="d">e.g., "8 &lt; 5" (P01); a flip of 214 written as 421 (P15).</div></div>
+        <div class="c"><div class="t">Omitted steps</div><div class="d">Arrows and bars meaning "and so on" (P08, E04).</div></div>
+        <div class="c"><div class="t">Hard-to-draw flips</div><div class="d">Lines and shapes invented to track a reversal (P08, P14).</div></div>
+        <div class="c"><div class="t">Little structure</div><div class="d">A bare "for" without bounds (P07); unannotated rows of values (P10).</div></div>
+        <div class="c"><div class="t">Varying abstraction</div><div class="d">From abstract swap marks (E01) to literal bubbles (P13).</div></div>
+      </div>
+      <div><img src="assets/user_sketches2.png" alt="Participants' pen-and-paper sketches: missed errors, omitted steps, flip difficulty, lack of structure, varying abstraction"><div class="src">Pen-and-paper sketches from our study participants</div></div>
+    </div>
+    <aside class="notes">
+      // Static.
+      Before using SketchMind, every participant sketched the algorithm on paper, and these sketches show the same challenges.
+      Drawing errors went unnoticed: P01 marked 8 &lt; 5, P15 wrote 214 flipped as 421. People skipped steps with arrows or bars. Flips were especially hard to depict, and participants invented their own lines and shapes for them.
+      Many sketches had little structure: P07 recognized a loop but wrote only "for". And abstraction varied widely, from E01's abstract swap marks to P13's actual bubbles.
+    </aside>
+  </section>
+
   <section class="slide withsec" data-title="Ratings" data-min="1.5">
     <div class="sec"><b>03</b>Results</div>
     <div class="res">
@@ -486,7 +507,7 @@
 
   <div id="fallback"><div class="tag">fallback</div><img alt=""></div>
   <div id="progress"></div>
-  <div id="foot"><img class="logo" src="assets/eth-logo.png" alt="ETH Zürich" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'logo-text',textContent:'ETH zürich'}))"><span class="sep"></span><span>SketchMind</span><span class="sep"></span><span>Yang Wu</span><span class="sep"></span><span>UIST 2026</span></div>
+  <div id="foot"><img class="logo" src="assets/footer-logos.png" alt="ETH Zürich · PEACH Lab · EPFL Systems and Formalisms Laboratory"><span class="sep"></span><span>SketchMind</span><span class="sep"></span><span>UIST 2026</span></div>
   <div id="hud"></div>
   <div id="toc"></div>
 </div>

@@ -7,7 +7,8 @@
     const cuts = sec.dataset.segs.split(',').map(Number);
     const id = sec.dataset.demo;
     function caption(ctx, k) {
-      sec.querySelectorAll('.cap[data-beat]').forEach((c) => c.classList.toggle('on', +c.dataset.beat === k));
+      const cumulative = sec.dataset.capmode === 'cumulative';   // earlier captions stay lit
+      sec.querySelectorAll('.cap[data-beat]').forEach((c) => c.classList.toggle('on', cumulative ? +c.dataset.beat <= k : +c.dataset.beat === k));
     }
     function stop(ctx) {
       if (ctx.raf) clearInterval(ctx.raf); ctx.raf = 0;

@@ -218,3 +218,14 @@ section.slide.titlecard { padding: 0; }
 .appslide .cap { font-size: 27px; line-height: 1.35; color: #222; opacity: .22; transition: opacity .35s; margin-bottom: 14px; }
 .appslide .cap.on { opacity: 1; }
 .appslide .live { display: inline-block; font-size: 18px; letter-spacing: .12em; text-transform: uppercase; color: #fff; background: var(--ok); border-radius: 6px; padding: 2px 10px; margin-bottom: 14px; }
+
+/* challenges: list lights up with the hand-drawn clip */
+.chal .c.cap { opacity: .25; transition: opacity .35s; }
+.chal .c.cap.on { opacity: 1; }
+.chal .vwrap { border-radius: 18px; overflow: hidden; box-shadow: 0 10px 50px rgba(0,0,0,.10); border: 1px solid var(--line); }
+.chal .vwrap video { display: block; width: 100%; }
+.chal:has(.vwrap) { grid-template-columns: 640px 1fr; }
+.vidslide .who { font-size: 24px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+.sketches .list { gap: 22px; }
+.sketches .c .t { font-size: 34px; }
+.sketches .c .d { font-size: 25px; }
