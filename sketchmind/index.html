@@ -30,21 +30,22 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="vid-paper" data-segs="0,5.8" data-title="Tracing on paper" data-min="1">
+  <section class="slide withsec" data-title="Tracing on paper" data-min="1">
     <div class="sec"><b>01</b>Motivation</div>
-    <div class="vidslide">
-      <div class="vwrap"><video src="media/paper.mp4" muted playsinline preload="auto"></video></div>
+    <div class="alice">
+      <img src="assets/alice.jpg" alt="Illustration: Alice tracing Bubble Sort on paper, surrounded by crossed-out arrays and question marks">
       <div class="side">
-        <h2>When learning algorithms, we often trace them with pen and paper,</h2>
-        <p class="cap" data-beat="1">but these traces can get <b>long</b> and go <b class="r">wrong</b>.</p>
-        <p class="cap sub2" data-beat="1">Every state is redrawn by hand, nothing groups the steps, and nothing checks the result.</p>
+        <div class="who">Alice learns Bubble Sort</div>
+        <h2>When learning algorithms, we often begin with pen-and-paper tracing.</h2>
+        <p class="arr">A = [3, 1, 7, 4]</p>
+        <p class="beat">Compare 3 and 1… cross out the old array… rewrite a new one… continue with the next pair.</p>
       </div>
     </div>
     <aside class="notes">
-      // One beat: plays the paper clip from the preview video (≈6 s).
-      When we learn an algorithm, we often trace it with pen and paper first: write the array, compare, swap, write the array again.
-      [1] Watch this bubble sort trace on 2, 3, 4, 5, 1. Already in the first line, the 5 and the 1 are circled: a drawing error. Then each step gets copied out again, and the trace keeps growing.
-      These traces get long, and they go wrong. Every state is redrawn by hand, the steps never get grouped into anything reusable, and nothing checks whether the reasoning holds on another input.
+      // One beat.
+      When learning algorithms, we often begin with pen-and-paper tracing: manually simulating how data changes step by step.
+      Let's follow Alice, a student learning Bubble Sort with an input array A = [3, 1, 7, 4].
+      [1] She starts by comparing 3 and 1… crosses out the old array… rewrites a new one… then continues with the next pair.
     </aside>
   </section>
 
@@ -59,11 +60,10 @@
       <div><img src="assets/user_sketches2.png" alt="Participants' pen-and-paper sketches: missed errors, omitted steps, flip difficulty, lack of structure, varying abstraction"><div class="src">Pen-and-paper sketches from our study participants</div></div>
     </div>
     <aside class="notes">
-      // Two beats. The figure is from our own study.
-      These are real sketches from participants in our study, and they show three challenges.
-      C1, trace explosion. As states pile up, redrawing gets tedious and error-prone. On the top left you can see wrong comparisons like "8 < 5", and in (b) people drew arrows meaning "and so on" and skipped the rest.
-      [1] C2, the abstraction leap. The steps stay tied to concrete numbers. In (d), one participant knew there was a loop and wrote "for", but never said what it loops over.
-      [2] C3, instance overfitting. If the example happens to work, you stop there. Test cases can tell you a solution fails, but not why, and they usually look very different from the example you worked through.
+      // Two beats. The figure shows real sketches from our study participants.
+      C1, trace explosion. As the process continues, her page fills with scratched-out numbers and fragmented states. To cope, Alice starts skipping steps or compressing operations, but now mistakes can easily go unnoticed. You can see the same thing in our participants' sketches: wrong comparisons like "8 < 5", and arrows meaning "and so on".
+      [1] C2, the abstraction leap. Alice senses she is repeating the same actions, but she struggles to describe the pattern. Her handwriting becomes rows of numbers without structure, so it's hard to see the logic or how the steps connect.
+      [2] C3, instance overfitting. After one pass, the array looks sorted, so Alice concludes that Bubble Sort only needs one pass. But that conclusion rests on a single example, and her reasoning fails to generalize.
     </aside>
   </section>
 
@@ -99,38 +99,33 @@
       <div class="legend"><div><b>a</b>Executable tracing</div><div><b>b</b>Reusable pens</div><div><b>c</b>Multi-level trace views</div><div><b>d</b>Counterexamples</div></div>
     </div>
     <aside class="notes">
-      SketchMind runs on a tablet with a stylus, and it has four capabilities.
-      (a) Executable tracing: pen strokes become operations that execute and get recorded as trace steps.
-      (b) Reusable pens: you merge parts of the trace into your own pens.
-      (c) Multi-level trace views: the same trace shown in terms of values, indices, or parameters.
-      (d) Counterexamples: the system replays your procedure on a nearby input where it fails.
-      Let's see them on the real system.
+      In this context, we present SketchMind, which helps users externalize, execute, and check their understanding of a given algorithm.
+      It has four capabilities: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, and (d) counterexample generation.
+      Let's follow Alice through each of them on the real system.
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="vid-trace" data-segs="0,2.7,5.7,7.5,10,11.5" data-title="Demo · Executable tracing" data-min="1.5">
+  <section class="slide withsec" data-demo="vid-trace" data-segs="0,11.2,20.5,25.9,35.2,41.4" data-title="Demo · Executable tracing" data-min="1.5">
     <div class="sec"><b>a</b>Executable tracing</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/trace.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <h2>SketchMind turns learners’ sketches into executable plans.</h2>
-        <p class="cap" data-beat="0">Write the input with the <b class="pc-data">Data</b> pen.</p>
-        <p class="cap" data-beat="1">Handwritten digits become an array. A trace card records it.</p>
-        <p class="cap" data-beat="2">Pick <b class="pc-cmp">Compare</b>, stroke across 3 and 1 → <code>is_bigger(3, 1)</code>.</p>
-        <p class="cap" data-beat="3"><b class="pc-swp">Swap</b> the same pair. The numbers move; no redrawing.</p>
-        <p class="cap" data-beat="4">Free-form strokes perform operations. The trace grows step by step.</p>
-        <p class="cap" data-beat="5">Steps merge into <b class="pc-user">Compare &amp; Swap</b> and <b class="pc-user">Bubble up</b> pens: a replayable record of the reasoning.</p>
+        <h2>Pen strokes become executable operations.</h2>
+        <p class="cap" data-beat="0">Alice’s array, as a sketch.</p>
+        <p class="cap" data-beat="1">With the <b class="pc-data">Data</b> pen she writes 3 1 7 4; it is recognized as an array.</p>
+        <p class="cap" data-beat="2"><b class="pc-cmp">Compare</b> 3 and 1 → <code>is_bigger(3, 1) = true</code> appears on the right.</p>
+        <p class="cap" data-beat="3"><b class="pc-swp">Swap</b> them. The numbers move; no redrawing.</p>
+        <p class="cap" data-beat="4">Compare 3 and 7, then 7 and 4. Any stroke shape works.</p>
+        <p class="cap" data-beat="5">Swap 7 and 4 → [1, 3, 4, 7]. Every step is kept as a replayable record.</p>
       </div>
     </div>
     <aside class="notes">
-      // Five beats; each plays one segment of the screen recording and pauses.
-      SketchMind turns these sketches into executable plans.
-      [1] The learner writes 3, 1, 4, 2 with the Data pen. The digits are recognized and become an array, and the first trace card appears.
-      [2] They pick the Compare pen and draw across 3 and 1. The values get a halo, and a card records is_bigger(3, 1) = true.
-      [3] Swap pen on the same pair. The numbers actually move, and a swap card is added. Nothing is redrawn.
-      [4] They continue: compare 3 and 4, compare 4 and 2, swap. Strokes can have any shape; what matters is which numbers they cross.
-      [5] Then they merge steps into their own pens, Compare & Swap and Bubble up, and apply two passes: 1, 2, 3, 4.
-      Every stroke is now a typed, persistent step that can be replayed, inspected, and revised. That addresses C1.
+      // Five beats; each plays one segment of the recording (sped up 1.5×) and pauses.
+      [1] Alice sketches an array on the left canvas, and the system recognizes it as an array.
+      [2] She selects the compare tool and marks two numbers. The result appears on the right-hand panel, showing that 3 is greater than 1.
+      [3] She then uses the swap tool to exchange them.
+      [4] She continues with 3 and 7, and 7 and 4. SketchMind supports diverse drawing styles, allowing users to sketch naturally…
+      [5] …while maintaining a clear, replayable record of their reasoning. That addresses C1.
     </aside>
   </section>
 
@@ -151,12 +146,31 @@
     <div class="pan beat">Pancake Sort: <code>find_max</code> + <code>flip</code> → <code>flip_to_front</code>. The max index found by the first step sets the range of the flip.</div>
     <aside class="notes">
       // Three beats.
-      For C2, SketchMind lets learners compose trace steps.
-      As in the demo, the learner drags the swap card into the true branch of is_bigger. That builds a conditional, and it's promoted to a new pen: Compare and Swap, which applies to any pair with one stroke.
+      Building on this, SketchMind allows users to merge steps into higher-level logic, such as if-else conditions or loops, which can then be reused as new tools.
+      Dragging swap into the true branch of is_bigger builds a conditional: Compare & Swap.
       [1] Applying compare-and-swap along adjacent pairs gives a Bubble up pen, one full pass.
       [2] Repeating bubble up on a shrinking range gives Bubble Sort, a nested loop.
-      Participants described these pens as functions they had defined themselves.
-      [3] The same mechanism works for other algorithms. In pancake sort, find_max feeds the index into flip.
+      [3] The same mechanism works for other algorithms: in pancake sort, find_max feeds the index into flip.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="vid-pens" data-segs="0,7.5,10.5,18" data-title="Demo · Reusable pens" data-min="1">
+    <div class="sec"><b>b</b>Reusable pens</div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/pens.mp4" muted playsinline preload="auto"></video></div>
+      <div class="side">
+        <h2>Merge steps into a new pen.</h2>
+        <p class="cap" data-beat="0">Alice’s trace: compare, swap, compare, compare, swap.</p>
+        <p class="cap" data-beat="1">She notices that she often compares two elements and then swaps them.</p>
+        <p class="cap" data-beat="2">She drops <b class="pc-swp">swap</b> into the <i>true</i> branch of <b class="pc-cmp">is_bigger</b> → <b class="pc-user">compare_and_swap</b>.</p>
+        <p class="cap" data-beat="3">The other steps fold into the same block; it becomes a reusable pen for the next step.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      // Three beats.
+      [1] Alice notices that she often compares two elements and then swaps them…
+      [2] …so she combines these into a single conditional operation…
+      [3] …and creates a reusable pen. She can now use this pen to perform the next step.
     </aside>
   </section>
 
@@ -165,7 +179,7 @@
     <h2>One procedure, three views.</h2>
     <div class="cols">
       <div class="v"><span class="tab">value</span>
-        <div class="ln">compare_and_swap(3, 1)</div><div class="ln">compare_and_swap(3, 4)</div><div class="ln">compare_and_swap(4, 2)</div>
+        <div class="ln">compare_and_swap(3, 1)</div><div class="ln">compare_and_swap(3, 7)</div><div class="ln">compare_and_swap(7, 4)</div>
         <div class="q">what happened<small>check the immediate outcome</small></div></div>
       <div class="v beat"><span class="tab">index</span>
         <div class="ln">compare_and_swap(a[0], a[1])</div><div class="ln">compare_and_swap(a[1], a[2])</div><div class="ln">compare_and_swap(a[2], a[3])</div>
@@ -176,31 +190,47 @@
     </div>
     <aside class="notes">
       // Two beats.
-      To get from a concrete example to a general rule, SketchMind shows the same procedure in three coordinated views.
-      The value view shows what happened on 3, 1, 4, 2: 3 and 1, then 3 and 4, then 4 and 2.
-      [1] The index view shows where it happened: a[0] and a[1], then a[1] and a[2]. The pattern shows up as positions.
+      To support abstraction, SketchMind provides three views of the same procedure: concrete values, indices, and parameters.
+      The value view shows what happened: 3 and 1, 3 and 7, 7 and 4.
+      [1] The index view shows where it happened: a[0] and a[1], then a[1] and a[2].
       [2] The parameter view shows how it generalizes: a[i] and a[i+1], with i going from 0 to 2. That's the loop.
-      One participant called it "a three-dimensional picture" of the same algorithm.
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="vid-cex" data-segs="0,1.0,5.2" data-title="Demo · Counterexample" data-min="1.5">
+  <section class="slide withsec" data-demo="vid-views" data-segs="0,1.5,8.5,14.93" data-title="Demo · Trace views" data-min="0.75">
+    <div class="sec"><b>c</b>Multi-level trace views</div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/views.mp4" muted playsinline preload="auto"></video></div>
+      <div class="side">
+        <h2>value → index → param</h2>
+        <p class="cap" data-beat="0"><b>value</b>: <code>compare_and_swap(3, 1)</code></p>
+        <p class="cap" data-beat="1"><b>index</b>: <code>compare_and_swap(a[0], a[1])</code>, positions in the array</p>
+        <p class="cap" data-beat="2"><b>param</b>: <code>compare_and_swap(a[i], a[i+1])</code>, i = 0, 1, 2: the pattern</p>
+      </div>
+    </div>
+    <aside class="notes">
+      // Two beats.
+      [1] Alice switches from the concrete view to the index view to see positions in the array…
+      [2] …and then to the parameter view to understand the pattern, such as iterating from i = 0 to 2.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="vid-cex" data-segs="0,3,14.3" data-title="Demo · Counterexample" data-min="1">
     <div class="sec"><b>d</b>Counterexample generation</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/cex.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
         <h2>Counterexamples as feedback.</h2>
-        <p class="cap" data-beat="0">[3, 1, 4, 2] → [1, 2, 3, 4]. Done?</p>
-        <p class="cap" data-beat="1">“Your example looks great, but what if we change <b class="r">2</b> to <b class="r">0</b>?”</p>
-        <p class="cap" data-beat="2">The learner’s own plan, replayed on [3, 1, 4, <b class="r">0</b>] → [1, 0, 3, 4]. <b class="r">Not sorted.</b> A third pass is missing.</p>
+        <p class="cap" data-beat="0">One pass: [3, 1, 7, 4] → [1, 3, 4, 7]. Looks sorted, so Alice clicks <b>Done</b>.</p>
+        <p class="cap" data-beat="1">“Your example looks great, but what if we change <b class="r">4</b> to <b class="r">2</b>?”</p>
+        <p class="cap" data-beat="2">Her sketches replayed on [3, 1, 7, <b class="r">2</b>] → [1, 3, 2, 7]. <b class="r">Not fully sorted yet.</b></p>
       </div>
     </div>
     <aside class="notes">
-      // Two beats; plays the counterexample part of the screen recording.
-      Now C3. The learner's plan, two Bubble-up passes, sorts 3, 1, 4, 2. So they are done, or think they are.
-      [1] They press Done. Instead of a list of random test cases, SketchMind changes their example as little as possible: "Your example looks great, but what if we change 2 to 0?"
-      [2] Then it replays their own plan on 3, 1, 4, 0. Same comparisons, same swaps, same path. The result is 1, 0, 3, 4. Not sorted.
-      The system doesn't fix it. It says the array is not fully sorted yet and asks them to take another look at the steps. The failure is on an input almost identical to theirs, so they can see where the reasoning stops: a third pass is missing.
+      // Two beats.
+      Once the user clicks Done, the system checks the result. If the output appears correct but the logic is flawed, SketchMind generates a counterexample.
+      [1] When Alice clicks Done, the system generates a counterexample by changing 4 to 2.
+      [2] Replaying her sketches shows that the array is not sorted.
     </aside>
   </section>
 
@@ -209,32 +239,52 @@
     <h2 style="margin-bottom:30px">Find the nearest input that follows the same path but fails.</h2>
     <div class="smt">
       <table>
-        <thead><tr><th>learner's plan</th><th>[3, 1, 4, 2]</th><th></th><th>[3, 1, 4, <span class="x">0</span>]</th><th></th></tr></thead>
+        <thead><tr><th>abstract trace</th><th>[3, 1, 7, 4]</th><th></th><th>[3, 1, 7, 2]</th><th></th></tr></thead>
         <tbody>
-          <tr><td>bubble_up 1 · a[0] &gt; a[1]?</td><td>3 &gt; 1</td><td class="cf y">✓</td><td>3 &gt; 1</td><td class="cf y">✓</td></tr>
-          <tr><td>&nbsp;&nbsp;a[1] &gt; a[2]?</td><td>3 &lt; 4</td><td class="cf x">×</td><td>3 &lt; 4</td><td class="cf x">×</td></tr>
-          <tr><td>&nbsp;&nbsp;a[2] &gt; a[3]?</td><td>4 &gt; 2</td><td class="cf y">✓</td><td>4 &gt; 0</td><td class="cf y">✓</td></tr>
-          <tr><td>bubble_up 2 · a[0] &gt; a[1]?</td><td>1 &lt; 3</td><td class="cf x">×</td><td>1 &lt; 3</td><td class="cf x">×</td></tr>
-          <tr><td>&nbsp;&nbsp;a[1] &gt; a[2]?</td><td>3 &gt; 2</td><td class="cf y">✓</td><td>3 &gt; 0</td><td class="cf y">✓</td></tr>
-          <tr class="beat"><td>result</td><td>[1, 2, 3, 4]</td><td class="cf y">✓</td><td>[1, 0, 3, 4]</td><td class="cf x">✗</td></tr>
-          <tr class="p2 beat"><td>missing: bubble_up 3 · a[0] &gt; a[1]?</td><td class="ne">not needed</td><td class="cf ne">–</td><td>1 &gt; 0</td><td class="cf y">✓</td></tr>
+          <tr><td>if a[0] &gt; a[1]: swap</td><td>3 &gt; 1</td><td class="cf y">✓</td><td>3 &gt; 1</td><td class="cf y">✓</td></tr>
+          <tr><td>if a[1] &gt; a[2]: swap</td><td>3 &lt; 7</td><td class="cf x">×</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
+          <tr><td>if a[2] &gt; a[3]: swap</td><td>7 &gt; 4</td><td class="cf y">✓</td><td>7 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[0] &gt; a[1]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>1 &lt; 3</td><td class="cf x">×</td></tr>
+          <tr class="p2 beat"><td>if a[1] &gt; a[2]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[2] &gt; a[3]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
         </tbody>
       </table>
       <div class="f">
-        <div class="box"><div class="k">encode</div><div class="m">A⁽⁰⁾ ∈ ℤⁿ (bounded), &nbsp;A⁽ᵗ⁺¹⁾ = op(A⁽ᵗ⁾)</div><div class="d">each trace card becomes a constraint on the array state</div></div>
-        <div class="box"><div class="k">keep the learner's path</div><div class="m">gₜ(A′) = gₜ(A) for every guard</div><div class="d">same comparisons and outcomes</div></div>
-        <div class="box"><div class="k">require failure</div><div class="m">¬Sorted(A′ after replay)</div></div>
+        <div class="box"><div class="k">encode</div><div class="m">A⁽⁰⁾ ∈ [1, 99]ⁿ, &nbsp;A⁽ᵗ⁺¹⁾ = op(A⁽ᵗ⁾)</div><div class="d">each trace card becomes a constraint on the array state</div></div>
+        <div class="box"><div class="k">property 1 · keep the learner's path</div><div class="m">gₜ(A′) = gₜ(A) for every guard</div><div class="d">all of the student’s previous steps are still valid</div></div>
+        <div class="box"><div class="k">property 2 · require more steps</div><div class="m">¬Sorted(A′ after replay)</div><div class="d">on the new example, additional steps are required</div></div>
         <div class="box"><div class="k">minimize</div><div class="m">Σₖ |a′ₖ − aₖ|</div><div class="d">solved with Z3 (SMT) in well under a second</div></div>
       </div>
     </div>
     <aside class="notes">
-      // Two beats: the result row, then the pass the plan is missing.
-      How did SketchMind come up with 2 → 0? We compile the learner's plan into SMT constraints.
-      Each card becomes a constraint on the array state. We ask the solver for an input where every comparison comes out the same way as in the learner's run, so the replay follows the same path, but the final array is not sorted. Among those inputs, we minimize the L1 distance to the original.
-      Look at the columns: every check and cross matches. Only the last number changed.
-      [1] Yet the result is 1, 0, 3, 4 instead of sorted.
-      [2] The comparison that would fix it, 1 > 0, belongs to a third pass, and that pass is exactly what the plan is missing.
-      Z3 finds this in a fraction of a second.
+      // Three beats: the second pass that the counterexample requires.
+      To show that the previous example does not complete all required passes, we generate a counterexample with two properties.
+      First, all of the student's earlier steps remain valid: every comparison comes out the same way, so the replay follows Alice's path.
+      Second, the new example requires additional steps to finish: after replay, it is not sorted. Among such inputs we take the one closest to the original.
+      This helps reduce student confusion while still exposing the mistake. We use a logic solver, Z3, to construct this counterexample.
+      [1] [2] [3] Here, 4 → 2 keeps the first pass identical, but the array now needs a second pass.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="vid-refine" data-segs="0,11.9,18.9,27.9,32.4" data-title="Demo · Iterative refinement" data-min="1">
+    <div class="sec"><b>d</b>Iterative refinement</div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/refine.mp4" muted playsinline preload="auto"></video></div>
+      <div class="side">
+        <h2>Fix the plan, not the example.</h2>
+        <p class="cap" data-beat="0">Back on the canvas with [1, 3, 2, 7].</p>
+        <p class="cap" data-beat="1">Alice wraps her first pass into a reusable <b class="pc-user">Bubble up</b> pen.</p>
+        <p class="cap" data-beat="2">She applies it to the next round: [1, 2, 3, 7].</p>
+        <p class="cap" data-beat="3">And the remaining round.</p>
+        <p class="cap" data-beat="4">Done again → <b class="pc-user">all examples are correct</b>.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      // Four beats.
+      [1] She then returns to the canvas and wraps the initial steps into a reusable bubble-up pen…
+      [2] …and applies it to the remaining rounds…
+      [3] …one more.
+      [4] Now, when she clicks Done, all examples are correct.
     </aside>
   </section>
 
@@ -255,46 +305,26 @@
     </aside>
   </section>
 
-  <section class="slide" data-demo="demo3" data-title="Demo · Pancake Sort" data-fallback="../fallback/demo3.png" data-min="4">
-    <div class="ptag">Live demo <span class="sep">|</span> Pancake Sort</div>
-    <div class="d3">
-      <div class="window tablet">
-        <div class="pens">
-          <span class="pen" data-pen="data" style="--pc:#555"><i></i>Data</span>
-          <span class="pen" data-pen="fm" style="--pc:#e8862a"><i></i>find_max</span>
-          <span class="pen" data-pen="fl" style="--pc:#8e5bd6"><i></i>flip</span>
-          <span class="sep"></span><span class="lbl">user created</span><span class="userpen"></span>
-          <span class="spacer"></span>
-          <span class="views"><span data-v="value" class="on">value</span><span data-v="index">index</span><span data-v="param">param</span></span>
-          <span class="done">Check</span>
-        </div>
-        <div class="body">
-          <div class="canvas"><svg class="sheet" viewBox="0 0 1000 795"></svg>
-            <div class="hint"><span class="spark">✦</span>Hmmm, what if we make a small change to the input.</div></div>
-          <div class="plan"><div class="hdr">plan <span class="try">Try [3, 2, 4, 1]</span><span class="merge">Merge</span></div></div>
-        </div>
+  <section class="slide withsec" data-demo="vid-pancake" data-segs="0,11.1,20.7,27.1,40" data-title="Demo · Pancake Sort" data-min="1.5">
+    <div class="sec"><b>02</b>Beyond Bubble Sort</div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/pancake.mp4" muted playsinline preload="auto"></video></div>
+      <div class="side">
+        <h2>Pancake Sort: new primitives, same workflow.</h2>
+        <p class="cap" data-beat="0">Customized primitives: <b class="pc-cmp">find_max</b> and <b class="pc-swp">flip</b>.</p>
+        <p class="cap" data-beat="1">find_max on [2, 4, 1, 3], flip the 4 to the front, flip it to the end.</p>
+        <p class="cap" data-beat="2">The steps merge into <b class="pc-user">flip_max_to_front</b> / <b class="pc-user">flip_max_to_end</b> pens.</p>
+        <p class="cap" data-beat="3">Applied round by round → [1, 2, 3, 4].</p>
+        <p class="cap" data-beat="4">Merged into a pancake_sort pen. Done → <b class="pc-user">array sorted</b>.</p>
       </div>
-      <svg class="cursor" viewBox="0 0 100 100"><g transform="translate(4,96) rotate(45)"><path d="M0 0 L-8 -20 L8 -20 Z" fill="#f2dcb8" stroke="#222" stroke-width="2.2" stroke-linejoin="round"/><path d="M0 0 L-3 -8 L3 -8 Z" fill="#222"/><rect x="-8" y="-78" width="16" height="58" rx="2.5" fill="#fff" stroke="#222" stroke-width="2.2"/><rect x="-8" y="-78" width="16" height="9" rx="2.5" fill="#cfcfcf" stroke="#222" stroke-width="2.2"/><line x1="-2" y1="-70" x2="-2" y2="-26" stroke="#ddd" stroke-width="2"/></g></svg>
     </div>
     <aside class="notes">
-      // Fourteen beats. All four capabilities on an unfamiliar algorithm.
-      // If short on time: compress beats 11–14 into one view switch.
-      Here's everything together on an algorithm most people haven't seen: pancake sort. You may only flip the top k pancakes.
-      [1] The learner writes 2, 3, 4, 1 with the Data pen. A trace card appears.
-      [2] find_max pen across all four: the 4 lights up.
-      [3] flip pen across the first three: the 4 comes to the front.
-      [4] flip across all four: 1, 2, 3, 4. Sorted, after one round.
-      [5] Check. Instead of an explanation, the system suggests a small change to the input.
-      [6] One tap: the input becomes 3, 2, 4, 1. Same procedure.
-      [7] Replay: find max, flip three, flip all. 1, 3, 2, 4. Not sorted. The missing repetition now has a visible consequence.
-      [8] The learner selects the three steps and merges them: one_round, their own pen.
-      [9] Apply it to the first three numbers.
-      [10] Then the first two. Sorted.
-      [11] Now the views.
-      [12] Index view: the rounds have the same structure; only the range changes.
-      [13] Merge the rounds into a loop: pancake_sort.
-      [14] Parameter view: i from n−1 down to 1.
-      That's pancake sort, and the learner can point at every line and say where it came from.
+      // Four beats; recording sped up 1.25×.
+      More generally, SketchMind can be extended to other algorithms by defining customized primitives.
+      [1] For example, we explore Pancake Sort using primitives such as findMax, which locates the maximum element, and flip, which reverses a range.
+      [2] As with Bubble Sort, the learner merges these steps into reusable pens.
+      [3] Applying them round by round sorts the stack.
+      [4] Finally the rounds become one pancake_sort procedure, and the check passes.
     </aside>
   </section>
 
@@ -447,8 +477,8 @@
     <div class="caps"><div style="--pc:var(--cmp)">Executable Tracing</div><div style="--pc:var(--user)">Reusable Pens</div><div style="--pc:var(--ps)">Multi-level Trace Views</div><div style="--pc:var(--accent)">Counterexample Generation</div></div>
     <div class="foot2"><span class="ty">Thank you!</span><span class="link">More in the paper · <a href="https://peachlab.inf.ethz.ch/projects/sketchmind/" target="_blank" rel="noopener">peachlab.inf.ethz.ch/projects/sketchmind</a> · yang.wu@inf.ethz.ch</span></div>
     <aside class="notes">
-      To sum up, SketchMind supports algorithmic reasoning through executable sketching: strokes execute, steps become pens, views move from values to parameters, and minimal counterexamples show where the reasoning stops generalizing.
-      You can find more in our paper. Thank you, and I'm happy to take questions.
+      Supporting algorithmic reasoning through executable sketching: strokes execute, steps become pens, views move from values to parameters, and counterexamples show where the reasoning stops generalizing.
+      For more details about SketchMind, please refer to our paper. Thank you, and I'm happy to take questions.
     </aside>
   </section>
 
@@ -460,7 +490,6 @@
 </div>
 
 <script src="../js/deck.js"></script>
-<script src="../js/demo3.js"></script>
 <script src="js/sm-video.js"></script>
 </body>
 </html>
