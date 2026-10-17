@@ -73,23 +73,32 @@
     </aside>
   </section>
 
-  <!-- ======================= SYSTEM ======================= -->
-
-  <section class="slide withsec" data-title="SketchMind overview" data-min="1">
+  <section class="slide withsec" data-title="SketchMind overview" data-min="1.5">
     <div class="sec"><b>02</b>SketchMind</div>
     <div class="overview">
       <h2 class="ovt">Supporting algorithmic reasoning through executable sketching</h2>
-      <img src="assets/overview_new.png" alt="SketchMind overview: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, (d) counterexample generation">
+      <div class="ovfig">
+        <img src="assets/overview_new.png" alt="SketchMind overview: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, (d) counterexample generation">
+        <div class="spot beat" style="left:0%;width:26.5%;--pc:var(--cmp)"><span class="tag">a · Executable tracing</span></div>
+        <div class="spot beat" style="left:24%;width:26.5%;--pc:var(--user)"><span class="tag">b · Reusable pens</span></div>
+        <div class="spot beat" style="left:51.5%;width:21.5%;--pc:var(--ps)"><span class="tag">c · Multi-level trace views</span></div>
+        <div class="spot beat" style="left:72.5%;width:27.5%;--pc:var(--accent)"><span class="tag">d · Counterexamples</span></div>
+        <div class="spot all beat"></div>
+      </div>
       <div class="legend"><div><b>a</b>Executable tracing</div><div><b>b</b>Reusable pens</div><div><b>c</b>Multi-level trace views</div><div><b>d</b>Counterexamples</div></div>
     </div>
     <aside class="notes">
+      // Five beats: each spotlights one panel of the figure, the last shows it whole.
       In this context, we present SketchMind, which helps users externalize, execute, and check their understanding of a given algorithm.
-      It has four capabilities: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, and (d) counterexample generation.
-      Let's follow Alice through each of them on the real system.
+      [1] (a) Executable tracing: Alice writes 3 1 7 4, and her compare and swap strokes run and are recorded as trace steps.
+      [2] (b) Reusable pens: she merges compare and swap into a conditional and turns it into her own pen.
+      [3] (c) Multi-level trace views: the same steps as values, as indices, and as parameters a[i], a[i+1].
+      [4] (d) Counterexamples: when she clicks Done, the system finds a nearby input where her procedure fails, and she fixes her plan.
+      [5] Let's go through the four features one by one, in the real system.
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="rec-0-5" data-segs="1.15,13.85,18.98,25,33.52,39.3" data-title="Live · Executable tracing" data-min="1.5">
+  <section class="slide withsec" data-demo="rec-0-5" data-segs="1.19,13.87,18.99,24.99,33.47,39.23" data-title="Live · Executable tracing" data-min="1.5">
     <div class="sec"><b>a</b>Executable tracing</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
@@ -112,58 +121,6 @@
       [3] She then uses the swap tool to exchange them. The numbers move; nothing is redrawn.
       [4] She continues with 3 and 7, and 7 and 4. Any stroke shape works; what matters is which numbers it crosses.
       [5] Swap 7 and 4: [1, 3, 4, 7]. SketchMind keeps a clear, replayable record of her reasoning. That addresses C1.
-    </aside>
-  </section>
-
-  <section class="slide withsec" data-demo="rec-5-7" data-segs="39.3,41.39,49.44" data-title="Live · Counterexample" data-min="1">
-    <div class="sec"><b>d</b>Counterexample generation</div>
-    <div class="vidslide wide">
-      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
-      <div class="side">
-        <div class="live">SketchMind · real app, recorded</div>
-        <h2>Counterexamples as feedback.</h2>
-        <p class="cap" data-beat="0">One pass: [3, 1, 7, 4] → [1, 3, 4, 7]. Done?</p>
-        <p class="cap" data-beat="1"><b>Done</b> → SMT: “what if we change <b class="r">4</b> to <b class="r">2</b>?”</p>
-        <p class="cap" data-beat="2">Her own steps on [3, 1, 7, <b class="r">2</b>] → [1, 3, 2, 7]: <b class="r">not fully sorted</b>.</p>
-      </div>
-    </div>
-    <aside class="notes">
-      // Two beats. The SMT answer is Z3's real output, recorded from the app's solver endpoint.
-      Once the user clicks Done, the system checks the result. If the output appears correct but the logic is flawed, SketchMind generates a counterexample.
-      [1] When Alice clicks Done, the system proposes changing 4 to 2.
-      [2] Replaying her sketches on [3, 1, 7, 2] shows that the array is not sorted.
-    </aside>
-  </section>
-
-  <section class="slide withsec" data-title="How: SMT search" data-min="1.5">
-    <div class="sec"><b>d</b>Counterexample generation</div>
-    <h2 style="margin-bottom:30px">Find the nearest input that follows the same path but fails.</h2>
-    <div class="smt">
-      <table>
-        <thead><tr><th>abstract trace</th><th>[3, 1, 7, 4]</th><th></th><th>[3, 1, 7, 2]</th><th></th></tr></thead>
-        <tbody>
-          <tr><td>if a[0] &gt; a[1]: swap</td><td>3 &gt; 1</td><td class="cf y">✓</td><td>3 &gt; 1</td><td class="cf y">✓</td></tr>
-          <tr><td>if a[1] &gt; a[2]: swap</td><td>3 &lt; 7</td><td class="cf x">×</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
-          <tr><td>if a[2] &gt; a[3]: swap</td><td>7 &gt; 4</td><td class="cf y">✓</td><td>7 &gt; 2</td><td class="cf y">✓</td></tr>
-          <tr class="p2 beat"><td>if a[0] &gt; a[1]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>1 &lt; 3</td><td class="cf x">×</td></tr>
-          <tr class="p2 beat"><td>if a[1] &gt; a[2]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &gt; 2</td><td class="cf y">✓</td></tr>
-          <tr class="p2 beat"><td>if a[2] &gt; a[3]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
-        </tbody>
-      </table>
-      <div class="f">
-        <div class="box"><div class="k">encode</div><div class="m">A⁽⁰⁾ ∈ [1, 99]ⁿ, &nbsp;A⁽ᵗ⁺¹⁾ = op(A⁽ᵗ⁾)</div><div class="d">each trace card becomes a constraint on the array state</div></div>
-        <div class="box"><div class="k">property 1 · keep the learner's path</div><div class="m">gₜ(A′) = gₜ(A) for every guard</div><div class="d">all of the student’s previous steps are still valid</div></div>
-        <div class="box"><div class="k">property 2 · require more steps</div><div class="m">¬Sorted(A′ after replay)</div><div class="d">on the new example, additional steps are required</div></div>
-        <div class="box"><div class="k">minimize</div><div class="m">Σₖ |a′ₖ − aₖ|</div><div class="d">solved with Z3 (SMT) in well under a second</div></div>
-      </div>
-    </div>
-    <aside class="notes">
-      // Three beats: the second pass that the counterexample requires.
-      To show that the previous example does not complete all required passes, we generate a counterexample with two properties.
-      First, all of the student's earlier steps remain valid: every comparison comes out the same way, so the replay follows Alice's path.
-      Second, the new example requires additional steps to finish: after replay, it is not sorted. Among such inputs we take the one closest to the original.
-      This helps reduce student confusion while still exposing the mistake. We use a logic solver, Z3, to construct this counterexample.
-      [1] [2] [3] Here, 4 → 2 keeps the first pass identical, but the array now needs a second pass.
     </aside>
   </section>
 
@@ -192,7 +149,7 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="rec-7-8" data-segs="49.44,57.61" data-title="Live · Reusable pens" data-min="1">
+  <section class="slide withsec" data-demo="rec-5-6" data-segs="39.23,46.22" data-title="Live · Reusable pens" data-min="1">
     <div class="sec"><b>b</b>Reusable pens</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
@@ -233,7 +190,7 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="rec-8-10" data-segs="57.61,60,62.39" data-title="Live · Trace views" data-min="0.75">
+  <section class="slide withsec" data-demo="rec-6-8" data-segs="46.22,48.61,50.99" data-title="Live · Trace views" data-min="0.75">
     <div class="sec"><b>c</b>Multi-level trace views</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
@@ -252,7 +209,27 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="rec-10-14" data-segs="62.39,69.47,75.81,81.25,83.54" data-title="Live · Iterative refinement" data-min="1.25">
+  <section class="slide withsec" data-demo="rec-8-10" data-segs="50.99,54.77,62.8" data-title="Live · Counterexample" data-min="1">
+    <div class="sec"><b>d</b>Counterexample generation</div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
+      <div class="side">
+        <div class="live">SketchMind · real app, recorded</div>
+        <h2>Counterexamples as feedback.</h2>
+        <p class="cap" data-beat="0">One pass: [3, 1, 7, 4] → [1, 3, 4, 7]. Done?</p>
+        <p class="cap" data-beat="1"><b>Done</b> → SMT: “what if we change <b class="r">4</b> to <b class="r">2</b>?”</p>
+        <p class="cap" data-beat="2">Her own steps on [3, 1, 7, <b class="r">2</b>] → [1, 3, 2, 7]: <b class="r">not fully sorted</b>.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      // Two beats. The SMT answer is Z3's real output, recorded from the app's solver endpoint.
+      Once the user clicks Done, the system checks the result. If the output appears correct but the logic is flawed, SketchMind generates a counterexample.
+      [1] When Alice clicks Done, the system proposes changing 4 to 2.
+      [2] Replaying her sketches on [3, 1, 7, 2] shows that the array is not sorted.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="rec-10-14" data-segs="62.8,69.39,75.7,81.17,83.46" data-title="Live · Iterative refinement" data-min="1.25">
     <div class="sec"><b>d</b>Iterative refinement</div>
     <div class="vidslide wide">
       <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
@@ -272,6 +249,38 @@
       [2] She applies it to the remaining rounds: first [1, 3, 2]…
       [3] …then [1, 2].
       [4] Now, when she clicks Done, the solver finds no counterexample: the algorithm is verified.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="How: SMT search" data-min="1.5">
+    <div class="sec"><b>d</b>Counterexample generation</div>
+    <h2 style="margin-bottom:30px">Find the nearest input that follows the same path but fails.</h2>
+    <div class="smt">
+      <table>
+        <thead><tr><th>abstract trace</th><th>[3, 1, 7, 4]</th><th></th><th>[3, 1, 7, 2]</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>if a[0] &gt; a[1]: swap</td><td>3 &gt; 1</td><td class="cf y">✓</td><td>3 &gt; 1</td><td class="cf y">✓</td></tr>
+          <tr><td>if a[1] &gt; a[2]: swap</td><td>3 &lt; 7</td><td class="cf x">×</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
+          <tr><td>if a[2] &gt; a[3]: swap</td><td>7 &gt; 4</td><td class="cf y">✓</td><td>7 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[0] &gt; a[1]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>1 &lt; 3</td><td class="cf x">×</td></tr>
+          <tr class="p2 beat"><td>if a[1] &gt; a[2]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[2] &gt; a[3]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
+        </tbody>
+      </table>
+      <div class="f">
+        <div class="box"><div class="k">encode</div><div class="m">A⁽⁰⁾ ∈ [1, 99]ⁿ, &nbsp;A⁽ᵗ⁺¹⁾ = op(A⁽ᵗ⁾)</div><div class="d">each trace card becomes a constraint on the array state</div></div>
+        <div class="box"><div class="k">property 1 · keep the learner's path</div><div class="m">gₜ(A′) = gₜ(A) for every guard</div><div class="d">all of the student’s previous steps are still valid</div></div>
+        <div class="box"><div class="k">property 2 · require more steps</div><div class="m">¬Sorted(A′ after replay)</div><div class="d">on the new example, additional steps are required</div></div>
+        <div class="box"><div class="k">minimize</div><div class="m">Σₖ |a′ₖ − aₖ|</div><div class="d">solved with Z3 (SMT) in well under a second</div></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // Three beats: the second pass that the counterexample requires.
+      To show that the previous example does not complete all required passes, we generate a counterexample with two properties.
+      First, all of the student's earlier steps remain valid: every comparison comes out the same way, so the replay follows Alice's path.
+      Second, the new example requires additional steps to finish: after replay, it is not sorted. Among such inputs we take the one closest to the original.
+      This helps reduce student confusion while still exposing the mistake. We use a logic solver, Z3, to construct this counterexample.
+      [1] [2] [3] Here, 4 → 2 keeps the first pass identical, but the array now needs a second pass.
     </aside>
   </section>
 
@@ -314,8 +323,6 @@
       [4] Finally the rounds become one pancake_sort procedure, and the check passes.
     </aside>
   </section>
-
-  <!-- ======================= STUDY ======================= -->
 
   <section class="slide withsec study" data-title="Study" data-min="1">
     <div class="sec"><b>03</b>Preliminary user study</div>
@@ -424,8 +431,6 @@
       [3] Putting this together gives a hybrid: a short in-class demo, then homework that moves from a basic trace to counterexample repair to abstraction, then a debrief.
     </aside>
   </section>
-
-  <!-- ======================= DISCUSSION ======================= -->
 
   <section class="slide withsec" data-title="Discussion & limitations" data-min="1.5">
     <div class="sec"><b>04</b>Discussion</div>
