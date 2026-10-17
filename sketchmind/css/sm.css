@@ -229,3 +229,8 @@ section.slide.titlecard { padding: 0; }
 .sketches .list { gap: 22px; }
 .sketches .c .t { font-size: 34px; }
 .sketches .c .d { font-size: 25px; }
+
+/* full-screen video slide (no footer) */
+section.slide.fullvid { padding: 0; background: #fff; }
+section.slide.fullvid video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
+#stage:has(section.fullvid.active) #foot { display: none; }

@@ -36,5 +36,16 @@
       }),
     });
   }
+  // Load each clip fully into memory: seeking then works on any static server (some, like
+  // python -m http.server, ignore range requests) and nothing buffers mid-talk.
+  document.querySelectorAll('section.slide[data-segs] video').forEach((v) => {
+    const src = v.getAttribute('src');
+    fetch(src).then((r) => (r.ok ? r.blob() : null)).then((b) => {
+      if (!b) return;
+      const t = v.currentTime;
+      v.src = URL.createObjectURL(b);
+      v.addEventListener('loadedmetadata', () => { try { v.currentTime = t; } catch (e) {} }, { once: true });
+    }).catch(() => {});
+  });
   document.querySelectorAll('section.slide[data-segs]').forEach(setup);
 })();
