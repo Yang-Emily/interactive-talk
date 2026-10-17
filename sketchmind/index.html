@@ -30,7 +30,7 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="vid-hand" data-segs="0,50.7" data-title="Tracing on paper" data-min="1.5">
+  <section class="slide withsec" data-demo="vid-hand" data-segs="0,5.6,16.1,25.6,36.5,45.1,50.7" data-title="Tracing on paper" data-min="1.5">
     <div class="sec"><b>01</b>Motivation</div>
     <div class="vidslide">
       <div class="vwrap"><video src="media/hand-intro.mp4" muted playsinline preload="auto"></video></div>
@@ -40,12 +40,14 @@
       </div>
     </div>
     <aside class="notes">
-      // One beat: plays the hand-drawn clip (51 s) full screen; the challenge labels are in the video.
+      // Six beats, one per part of the hand-drawn clip (the challenge labels are in the video).
       When learning algorithms, we often begin with pen-and-paper tracing: manually simulating how data changes step by step.
-      [1] Let's follow Alice, a student learning Bubble Sort. She writes 5, 2, 3, 4, 1, compares 5 and 2, swaps them, rewrites the array, and continues with the next pair.
-      Challenge 1, trace explosion: the page fills with rewritten arrays. To cope, she skips or compresses steps, and mistakes go unnoticed, like this drawing error.
-      Challenge 2, the abstraction leap: she senses she is repeating the same actions, but the page is just rows of numbers without structure.
-      Challenge 3, instance overfitting: after one pass the array may look sorted, so she concludes one pass is enough. That conclusion rests on a single example.
+      [1] Let's follow Alice, a student learning Bubble Sort. She writes an input: 5, 2, 3, 4, 1.
+      [2] She compares 5 and 2, swaps them, rewrites the array, and continues with the next pair.
+      [3] Challenge 1, trace explosion: the page fills with rewritten arrays, and mistakes slip in, like this drawing error.
+      [4] To cope, she starts skipping steps.
+      [5] Challenge 2, the abstraction leap: she senses she is repeating the same actions, but the page is just rows of numbers without structure.
+      [6] Challenge 3, instance overfitting: after one pass the array may look sorted, so she concludes one pass is enough. That conclusion rests on a single example.
     </aside>
   </section>
 
@@ -87,12 +89,12 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-app="0,5" data-title="Live · Executable tracing" data-min="1.5">
+  <section class="slide withsec" data-demo="rec-0-5" data-segs="1.15,13.85,18.98,25,33.52,39.3" data-title="Live · Executable tracing" data-min="1.5">
     <div class="sec"><b>a</b>Executable tracing</div>
-    <div class="appslide">
-      <div class="appslot"></div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <div class="live">live · SketchMind</div>
+        <div class="live">SketchMind · real app, recorded</div>
         <h2>Pen strokes become executable operations.</h2>
         <p class="cap" data-beat="0">Back in SketchMind: Alice’s array [3, 1, 7, 4], about to be sketched.</p>
         <p class="cap" data-beat="1"><b class="pc-data">Data</b> pen: 3 1 7 4 is recognized as an array.</p>
@@ -103,7 +105,7 @@
       </div>
     </div>
     <aside class="notes">
-      // Five beats. This is the real SketchMind app (iframe), driven by a script: every stroke is a pointer event on its canvas.
+      // Five beats. This is a recording of the real SketchMind app driven by a script: every stroke went through its canvas as pointer input. Each beat plays one step.
       Now in SketchMind. Alice starts again, with A = [3, 1, 7, 4].
       [1] Alice sketches an array on the canvas, and the system recognizes it as an array.
       [2] She selects the compare tool and marks two numbers. The result appears on the right-hand panel: 3 is greater than 1.
@@ -113,12 +115,12 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-app="5,7" data-title="Live · Counterexample" data-min="1">
+  <section class="slide withsec" data-demo="rec-5-7" data-segs="39.3,41.39,49.44" data-title="Live · Counterexample" data-min="1">
     <div class="sec"><b>d</b>Counterexample generation</div>
-    <div class="appslide">
-      <div class="appslot"></div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <div class="live">live · SketchMind</div>
+        <div class="live">SketchMind · real app, recorded</div>
         <h2>Counterexamples as feedback.</h2>
         <p class="cap" data-beat="0">One pass: [3, 1, 7, 4] → [1, 3, 4, 7]. Done?</p>
         <p class="cap" data-beat="1"><b>Done</b> → SMT: “what if we change <b class="r">4</b> to <b class="r">2</b>?”</p>
@@ -190,12 +192,12 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-app="7,8" data-title="Live · Reusable pens" data-min="1">
+  <section class="slide withsec" data-demo="rec-7-8" data-segs="49.44,57.61" data-title="Live · Reusable pens" data-min="1">
     <div class="sec"><b>b</b>Reusable pens</div>
-    <div class="appslide">
-      <div class="appslot"></div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <div class="live">live · SketchMind</div>
+        <div class="live">SketchMind · real app, recorded</div>
         <h2>Merge steps into a new pen.</h2>
         <p class="cap" data-beat="0">Back to her steps: compare, swap, compare, compare, swap.</p>
         <p class="cap" data-beat="1">Drop <b class="pc-swp">swap</b> into the <i>True</i> branch of <b class="pc-cmp">is_bigger</b> → a <b class="pc-user">Compare &amp; Swap</b> pen; the whole pass folds into compare_and_swap blocks.</p>
@@ -231,12 +233,12 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-app="8,10" data-title="Live · Trace views" data-min="0.75">
+  <section class="slide withsec" data-demo="rec-8-10" data-segs="57.61,60,62.39" data-title="Live · Trace views" data-min="0.75">
     <div class="sec"><b>c</b>Multi-level trace views</div>
-    <div class="appslide">
-      <div class="appslot"></div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <div class="live">live · SketchMind</div>
+        <div class="live">SketchMind · real app, recorded</div>
         <h2>value → index → param</h2>
         <p class="cap" data-beat="0"><b>value</b>: <code>compare_and_swap(3, 1)</code></p>
         <p class="cap" data-beat="1"><b>index</b>: <code>compare_and_swap(a[0], a[1])</code>, positions in the array</p>
@@ -250,12 +252,12 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-app="10,14" data-title="Live · Iterative refinement" data-min="1.25">
+  <section class="slide withsec" data-demo="rec-10-14" data-segs="62.39,69.47,75.81,81.25,83.54" data-title="Live · Iterative refinement" data-min="1.25">
     <div class="sec"><b>d</b>Iterative refinement</div>
-    <div class="appslide">
-      <div class="appslot"></div>
+    <div class="vidslide wide">
+      <div class="vwrap"><video src="media/live-bubble.mp4" muted playsinline preload="auto"></video></div>
       <div class="side">
-        <div class="live">live · SketchMind</div>
+        <div class="live">SketchMind · real app, recorded</div>
         <h2>Fix the plan, not the example.</h2>
         <p class="cap" data-beat="0">Three compare_and_swap blocks on [3, 1, 7, 2].</p>
         <p class="cap" data-beat="1">Drag them together → <code>bubble_up</code>, <i>for i = 0 to 2</i>: a new <b class="pc-user">Bubble up</b> pen.</p>
@@ -496,6 +498,5 @@
 
 <script src="../js/deck.js"></script>
 <script src="js/sm-video.js"></script>
-<script src="js/sm-app.js"></script>
 </body>
 </html>
