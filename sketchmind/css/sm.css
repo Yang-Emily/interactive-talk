@@ -203,11 +203,18 @@ section.slide.titlecard { padding: 0; }
 .alice p { font-size: 32px; color: #333; }
 
 .live { display: inline-block; font-size: 18px; letter-spacing: .12em; text-transform: uppercase; color: #fff; background: var(--ok); border-radius: 6px; padding: 2px 10px; margin-bottom: 14px; }
-/* overview: spotlight one panel per beat */
-.ovfig { position: relative; overflow: hidden; border-radius: 12px; }
-.ovfig img { display: block; width: 100%; }
-.ovfig .spot { position: absolute; top: 0; bottom: 0; border-radius: 18px; transition: opacity .35s ease, box-shadow .35s ease; }
-.ovfig .spot.on:not(:has(~ .spot.on)) { box-shadow: 0 0 0 4000px rgba(255,255,255,.82), inset 0 0 0 4px var(--pc); }
-.ovfig .spot.on:has(~ .spot.on) { visibility: hidden; opacity: 0; }
-.ovfig .spot.all, .ovfig .spot.all.on { visibility: hidden !important; box-shadow: none !important; }
-.ovfig .spot .tag { position: absolute; left: 14px; bottom: 14px; background: var(--pc); color: #fff; font-size: 24px; font-weight: 700; padding: 6px 14px; border-radius: 10px; white-space: nowrap; }
+/* overview: the figure draws itself in, one storyboard frame per beat */
+:root { --pa: var(--cmp); --pb: var(--user); --pc2: var(--ps); --pd: var(--accent); }
+.ovfig { position: relative; }
+.ovfig img { display: block; width: 100%; opacity: .1; filter: grayscale(1); }
+.ovfig .ovlayer { position: absolute; inset: 0; background: url(../assets/overview_new.png) 0 0 / 100% 100% no-repeat;
+  clip-path: inset(var(--t) calc(100% - var(--l)) var(--b) var(--l)); opacity: 0; }
+.ovfig .ovlayer.on { clip-path: inset(var(--t) var(--r) var(--b) var(--l)); opacity: 1; }
+.ovfig .ovlayer.anim { transition: clip-path .9s ease-out, opacity .25s; }
+.ovcap { min-height: 52px; margin-top: 22px; display: flex; align-items: center; gap: 12px; font-size: 27px; flex-wrap: wrap; }
+.ovcap .pl { color: #fff; background: var(--pc); font-weight: 700; padding: 4px 14px; border-radius: 10px; font-size: 22px; }
+.ovcap .who { font-size: 17px; letter-spacing: .12em; text-transform: uppercase; color: #fff; background: #555; padding: 3px 9px; border-radius: 6px; }
+.ovcap .who.sys { background: var(--ok); }
+.ovcap .arr { color: #999; font-size: 30px; }
+.ovcap .what { color: #222; }
+.overview .legend { display: none; }

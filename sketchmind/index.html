@@ -73,28 +73,23 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-title="SketchMind overview" data-min="1.5">
+  <section class="slide withsec" data-demo="overview" data-title="SketchMind overview" data-min="2">
     <div class="sec"><b>02</b>SketchMind</div>
     <div class="overview">
       <h2 class="ovt">Supporting algorithmic reasoning through executable sketching</h2>
       <div class="ovfig">
         <img src="assets/overview_new.png" alt="SketchMind overview: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, (d) counterexample generation">
-        <div class="spot beat" style="left:0%;width:26.5%;--pc:var(--cmp)"><span class="tag">a · Executable tracing</span></div>
-        <div class="spot beat" style="left:24%;width:26.5%;--pc:var(--user)"><span class="tag">b · Reusable pens</span></div>
-        <div class="spot beat" style="left:51.5%;width:21.5%;--pc:var(--ps)"><span class="tag">c · Multi-level trace views</span></div>
-        <div class="spot beat" style="left:72.5%;width:27.5%;--pc:var(--accent)"><span class="tag">d · Counterexamples</span></div>
-        <div class="spot all beat"></div>
       </div>
-      <div class="legend"><div><b>a</b>Executable tracing</div><div><b>b</b>Reusable pens</div><div><b>c</b>Multi-level trace views</div><div><b>d</b>Counterexamples</div></div>
+      <div class="ovcap"></div>
     </div>
     <aside class="notes">
-      // Five beats: each spotlights one panel of the figure, the last shows it whole.
+      // Fifteen beats: the figure draws itself in, one storyboard frame at a time; the caption says what the hand did and how the system reacted.
       In this context, we present SketchMind, which helps users externalize, execute, and check their understanding of a given algorithm.
-      [1] (a) Executable tracing: Alice writes 3 1 7 4, and her compare and swap strokes run and are recorded as trace steps.
-      [2] (b) Reusable pens: she merges compare and swap into a conditional and turns it into her own pen.
-      [3] (c) Multi-level trace views: the same steps as values, as indices, and as parameters a[i], a[i+1].
-      [4] (d) Counterexamples: when she clicks Done, the system finds a nearby input where her procedure fails, and she fixes her plan.
-      [5] Let's go through the four features one by one, in the real system.
+      [1–4] (a) Executable tracing. Alice writes 3 1 7 4 and it becomes an array. A compare stroke under 3 and 1 gives is_bigger(3, 1) = True; a swap arc moves the numbers. Every stroke becomes a trace card.
+      [5–9] (b) Reusable pens. She drags swap into the True branch of is_bigger; the system merges them into compare_and_swap and gives her a new pen. She uses it, then gathers the blocks into a bubble_up loop.
+      [10–12] (c) Multi-level trace views. The same steps as values, as indices a[0], a[1], and as parameters a[i], a[i+1].
+      [13–15] (d) Counterexamples. She taps Done; the system changes 4 to 2, replays her steps on 3 1 7 2, and the array is not sorted. Back to (b) to fix her plan.
+      Now let's go through the four features one by one, in the real system.
     </aside>
   </section>
 
@@ -503,5 +498,6 @@
 
 <script src="../js/deck.js"></script>
 <script src="js/sm-video.js"></script>
+<script src="js/sm-overview.js"></script>
 </body>
 </html>
