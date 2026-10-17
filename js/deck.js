@@ -93,6 +93,7 @@
     if (prev && prev !== slides[i]) {
       prev.classList.remove('active');
       const pd = slideDemo(prev);
+      if (pd) pd.ctx.clearTimers();     // stop in-flight animations of the slide we leave
       if (pd && pd.leave) pd.leave(pd.ctx);
     }
     cur = i; beat = Math.min(n, totalBeats(slides[cur]));

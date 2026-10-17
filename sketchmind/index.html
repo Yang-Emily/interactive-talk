@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="deck-version" content="2026-10-17 SketchMind">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>SketchMind · UIST 2026</title>
+<link rel="stylesheet" href="../css/deck.css">
+<link rel="stylesheet" href="../css/demos.css">
+<link rel="stylesheet" href="css/sm.css">
+</head>
+<body>
+<div id="stage">
+
+  <!-- ======================= OPENING ======================= -->
+
+  <section class="slide center" data-title="Title" data-min="0.5">
+    <div class="kicker">UIST 2026</div>
+    <h1>SketchMind</h1>
+    <h2 style="font-weight:500;max-width:1500px">Toward Executable Pen-Based Sketching for Constructing Sorting Algorithms</h2>
+    <div class="authors">Yang Wu · Clément Pit-Claudel · April Yi Wang<span class="aff">ETH Zurich · EPFL · ETH Zurich</span></div>
+    <aside class="notes">
+      Hi everyone, I'm Yang Wu from ETH Zurich. This is joint work with Clément Pit-Claudel at EPFL and April Wang at ETH.
+      Today I'll talk about SketchMind, a system where you build a sorting algorithm by drawing on an execution trace with a pen.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="Tracing on paper" data-min="1.5">
+    <div class="sec"><b>01</b>Motivation</div>
+    <div class="paper">
+      <div class="sheet">
+        <div class="ln">3 &nbsp;1 &nbsp;7 &nbsp;4</div>
+        <div class="ln beat">3 &gt; 1 → swap → &nbsp;<s>3 1</s> 1 3 7 4</div>
+        <div class="ln beat">3 &lt; 7 → ok</div>
+        <div class="ln beat">7 &gt; 4 → swap → &nbsp;<s>1 3 7 4</s> 1 3 4 7</div>
+        <div class="ln beat">sorted! <span class="tick">✓</span> &nbsp;<span class="q">…after one pass?</span></div>
+      </div>
+      <div class="side">
+        <div class="alice">Alice learns Bubble Sort</div>
+        <h2>Tracing is how we think before we code.</h2>
+        <p class="beat">But a paper trace is <b>static</b>: every step is redrawn by hand, nothing groups the steps, and nothing checks whether the reasoning holds on another input.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      // Four beats on the sheet, one on the right.
+      When people learn an algorithm, they often trace it on paper first. Meet Alice, who is learning bubble sort on the array 3, 1, 7, 4.
+      [1] She compares 3 and 1, swaps them, crosses out the old array and redraws it.
+      [2] 3 and 7 are already in order.
+      [3] 7 and 4: swap, and redraw again.
+      [4] And now the array looks sorted. So she concludes: one pass is enough.
+      That conclusion is wrong, but nothing on her paper tells her.
+      [5] A paper trace is static. Every state is redrawn by hand, the steps never get grouped into anything reusable, and there's no way to check whether her reasoning works on another input.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="Three challenges" data-min="1.5">
+    <div class="sec"><b>01</b>Motivation</div>
+    <div class="chal">
+      <div class="list">
+        <div class="c"><div class="t"><small>C1</small>Trace explosion</div><div class="d">Intermediate states pile up. Redrawing is tedious and error-prone, so people skip steps.</div></div>
+        <div class="c beat"><div class="t"><small>C2</small>The abstraction leap</div><div class="d">Steps stay tied to concrete values. It's hard to see a repeated compare-and-swap as an inner loop.</div></div>
+        <div class="c beat"><div class="t"><small>C3</small>Instance overfitting</div><div class="d">A "happy path" example passes. Test cases say <i>that</i> it fails, not <i>why</i>, and they look nothing like the learner's example.</div></div>
+      </div>
+      <div><img src="assets/user_sketches2.png" alt="Participants' pen-and-paper sketches: missed errors, omitted steps, flip difficulty, lack of structure, varying abstraction"><div class="src">Pen-and-paper sketches from our study participants</div></div>
+    </div>
+    <aside class="notes">
+      // Two beats. The figure is from our own study.
+      These are real sketches from participants in our study, and they show three challenges.
+      C1, trace explosion. As states pile up, redrawing gets tedious and error-prone. On the top left you can see wrong comparisons like "8 < 5", and in (b) people drew arrows meaning "and so on" and skipped the rest.
+      [1] C2, the abstraction leap. The steps stay tied to concrete numbers. In (d), one participant knew there was a loop and wrote "for", but never said what it loops over.
+      [2] C3, instance overfitting. If the example happens to work, as with Alice, you stop there. Test cases can tell you a solution fails, but not why, and they usually look very different from the example you worked through.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="The gap" data-min="1">
+    <div class="sec"><b>01</b>Motivation</div>
+    <div class="gap">
+      <h2>Tools either run a program <span class="muted">or</span> record a trace.</h2>
+      <div class="grid">
+        <div class="g"><div class="t">Trace visualizers</div><div class="ex">e.g., Python Tutor, projection boxes</div>
+          <ul><li class="y">executable</li><li class="n">program given in advance</li><li class="n">learner observes, doesn't build</li></ul></div>
+        <div class="g"><div class="t">Digital ink / annotation</div><div class="ex">e.g., tablet-based tracing</div>
+          <ul><li class="y">editable, pen-first</li><li class="n">not executable</li><li class="n">no structure, no validation</li></ul></div>
+        <div class="g us beat"><div class="t">Executable sketches</div><div class="ex">SketchMind</div>
+          <ul><li class="y">pen-first</li><li class="y">every stroke runs</li><li class="y">the algorithm is <b>built from</b> the trace</li></ul></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // One beat.
+      Existing tools split this in two.
+      Trace visualizers like Python Tutor execute code, but the program has to exist already. The learner watches it run.
+      Annotation tools digitize the paper workflow. They're easier to edit, but they still don't execute anything.
+      [1] We explore the space in between, which we call executable sketches. You still work with a pen on a concrete example, but every stroke runs, and the algorithm is built up from the trace itself.
+    </aside>
+  </section>
+
+  <!-- ======================= SYSTEM ======================= -->
+
+  <section class="slide withsec" data-title="SketchMind overview" data-min="1">
+    <div class="sec"><b>02</b>SketchMind</div>
+    <div class="overview">
+      <img src="assets/overview_new.png" alt="SketchMind overview: (a) executable tracing, (b) reusable pens, (c) multi-level trace views, (d) counterexample generation">
+      <div class="legend"><div><b>a</b>Executable tracing</div><div><b>b</b>Reusable pens</div><div><b>c</b>Multi-level trace views</div><div><b>d</b>Counterexamples</div></div>
+    </div>
+    <aside class="notes">
+      SketchMind runs on a tablet with a stylus, and it has four capabilities.
+      (a) Executable tracing: pen strokes become operations that execute and get recorded as trace steps.
+      (b) Reusable pens: you merge parts of the trace into your own pens.
+      (c) Multi-level trace views: the same trace shown in terms of values, indices, or parameters.
+      (d) Counterexamples: the system replays your procedure on a nearby input where it fails.
+      Let's go through them with Alice.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="smb-trace" data-title="Demo · Executable tracing" data-min="1.5">
+    <div class="sec"><b>a</b>Executable tracing</div>
+    <div class="window smb">
+      <div class="pens">
+        <span class="pen" data-pen="data" style="--pc:var(--data)"><i></i>Data</span>
+        <span class="pen" data-pen="cmp" style="--pc:var(--cmp)"><i></i>Compare</span>
+        <span class="pen" data-pen="swp" style="--pc:var(--swp)"><i></i>Swap</span>
+        <span class="spacer"></span><span class="chk">Check</span>
+      </div>
+      <div class="body">
+        <div class="canvas"><div class="banner"></div><div class="row"></div><div class="verdict"></div></div>
+        <div class="plan"><div class="hdr">trace</div><div class="cards"></div></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // Four beats. Scripted replica of the interface.
+      [1] With the Data pen, Alice writes 3, 1, 7, 4. The system recognizes the handwritten digits and creates an array that can be executed. The first card appears in the trace.
+      [2] She picks the Compare pen and draws across 3 and 1. The two values get a halo, and a card records is_bigger(3, 1) = true.
+      [3] Swap pen, same pair. The numbers actually move, and a swap card is added. She doesn't redraw anything.
+      [4] She continues the pass: compare 3 and 7, compare 7 and 4, swap. 1, 3, 4, 7. It looks sorted.
+      Every stroke is now a typed, persistent step that can be replayed, inspected, and revised. That addresses C1.
+    </aside>
+  </section>
+
+  <section class="slide withsec pens2" data-title="Reusable pens" data-min="1.5">
+    <div class="sec"><b>b</b>Reusable pens</div>
+    <h2>Merge trace steps into your own pens.</h2>
+    <div class="ladder">
+      <div class="rung"><div class="from"><span class="chipp" style="--pc:var(--cmp)"><i></i>is_bigger</span><span class="chipp" style="--pc:var(--swp)"><i></i>swap</span></div><div class="arr">→</div>
+        <div class="to"><span class="chipp" style="--pc:#4c6ef5"><i></i>Compare &amp; Swap</span><pre>if is_bigger(a, b):
+    swap(a, b)</pre><span class="what">if–else: drag the swap into the <i>true</i> branch</span></div></div>
+      <div class="rung beat"><div class="from"><span class="chipp" style="--pc:#4c6ef5"><i></i>Compare &amp; Swap</span><span class="muted" style="font-size:28px">× n−1</span></div><div class="arr">→</div>
+        <div class="to"><span class="chipp" style="--pc:var(--user)"><i></i>Bubble up</span><pre>for i in 0 .. n-2:
+    compare_and_swap(a[i], a[i+1])</pre><span class="what">one pass moves the max to the end</span></div></div>
+      <div class="rung beat"><div class="from"><span class="chipp" style="--pc:var(--user)"><i></i>Bubble up</span><span class="muted" style="font-size:28px">× n−1</span></div><div class="arr">→</div>
+        <div class="to"><span class="chipp" style="--pc:var(--ps)"><i></i>Bubble Sort</span><pre>for p in 0 .. n-2:
+    bubble_up(a[0 .. n-1-p])</pre><span class="what">nested loop, shrinking range</span></div></div>
+    </div>
+    <div class="pan beat">Pancake Sort: <code>find_max</code> + <code>flip</code> → <code>flip_to_front</code>. The max index found by the first step sets the range of the flip.</div>
+    <aside class="notes">
+      // Three beats.
+      For C2, SketchMind lets learners compose trace steps.
+      Alice drags the swap card into the true branch of is_bigger. That builds a conditional, and it's promoted to a new pen: Compare and Swap. She can now apply it to any pair with one stroke.
+      [1] Applying compare-and-swap along adjacent pairs gives a Bubble up pen, one full pass.
+      [2] Repeating bubble up on a shrinking range gives Bubble Sort, a nested loop.
+      Participants described these pens as functions they had defined themselves.
+      [3] The same mechanism works for other algorithms. In pancake sort, find_max feeds the index into flip.
+    </aside>
+  </section>
+
+  <section class="slide withsec views3" data-title="Multi-level trace views" data-min="1">
+    <div class="sec"><b>c</b>Multi-level trace views</div>
+    <h2>One procedure, three views.</h2>
+    <div class="cols">
+      <div class="v"><span class="tab">value</span>
+        <div class="ln">compare_and_swap(3, 1)</div><div class="ln">compare_and_swap(3, 7)</div><div class="ln">compare_and_swap(7, 4)</div>
+        <div class="q">what happened<small>check the immediate outcome</small></div></div>
+      <div class="v beat"><span class="tab">index</span>
+        <div class="ln">compare_and_swap(a[0], a[1])</div><div class="ln">compare_and_swap(a[1], a[2])</div><div class="ln">compare_and_swap(a[2], a[3])</div>
+        <div class="q">where it happened<small>adjacency and positions become visible</small></div></div>
+      <div class="v beat"><span class="tab">param</span>
+        <div class="ln"><span class="i">i = 0</span>compare_and_swap(a[i], a[i+1])</div><div class="ln"><span class="i">i = 1</span>compare_and_swap(a[i], a[i+1])</div><div class="ln"><span class="i">i = 2</span>compare_and_swap(a[i], a[i+1])</div>
+        <div class="q">how it generalizes<small>the loop variable and its bounds</small></div></div>
+    </div>
+    <aside class="notes">
+      // Two beats.
+      To get from a concrete example to a general rule, SketchMind shows the same procedure in three coordinated views.
+      The value view shows what happened: 3 and 1, 3 and 7, 7 and 4.
+      [1] The index view shows where it happened: a[0] and a[1], then a[1] and a[2]. The pattern shows up as positions.
+      [2] The parameter view shows how it generalizes: a[i] and a[i+1], with i going from 0 to 2. That's the loop.
+      One participant called it "a three-dimensional picture" of the same algorithm.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="smb-cex" data-title="Demo · Counterexample" data-min="1.5">
+    <div class="sec"><b>d</b>Counterexample generation</div>
+    <div class="window smb">
+      <div class="pens">
+        <span class="pen" data-pen="data" style="--pc:var(--data)"><i></i>Data</span>
+        <span class="pen" data-pen="cmp" style="--pc:var(--cmp)"><i></i>Compare</span>
+        <span class="pen" data-pen="swp" style="--pc:var(--swp)"><i></i>Swap</span>
+        <span class="spacer"></span><span class="chk">Check</span>
+      </div>
+      <div class="body">
+        <div class="canvas"><div class="banner"></div><div class="row"></div><div class="verdict"></div></div>
+        <div class="plan"><div class="hdr">trace</div><div class="cards"></div></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // Three beats. Starts where the tracing demo ended.
+      Now C3. Alice's trace sorts her example, so she is done, or thinks she is.
+      [1] She presses Check. SketchMind doesn't show a list of random test cases. It changes her example as little as possible: the 4 becomes a 2.
+      [2] Then it replays her own steps on the new input. Same comparisons, same swaps, same path. The result is 1, 3, 2, 7. Not sorted.
+      [3] The system doesn’t fix it for her; the banner just names the gap. The failure is on an input almost identical to the one she worked with, so she can see where her reasoning stops: she needs a second pass.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="How: SMT search" data-min="1.5">
+    <div class="sec"><b>d</b>Counterexample generation</div>
+    <h2 style="margin-bottom:30px">Find the nearest input that follows the same path but fails.</h2>
+    <div class="smt">
+      <table>
+        <thead><tr><th>abstract trace</th><th>[3, 1, 7, 4]</th><th></th><th>[3, 1, 7, 2]</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>if a[0] &gt; a[1]: swap</td><td>3 &gt; 1</td><td class="cf y">✓</td><td>3 &gt; 1</td><td class="cf y">✓</td></tr>
+          <tr><td>if a[1] &gt; a[2]: swap</td><td>3 &lt; 7</td><td class="cf x">×</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
+          <tr><td>if a[2] &gt; a[3]: swap</td><td>7 &gt; 4</td><td class="cf y">✓</td><td>7 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[0] &gt; a[1]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>1 &lt; 3</td><td class="cf x">×</td></tr>
+          <tr class="p2 beat"><td>if a[1] &gt; a[2]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &gt; 2</td><td class="cf y">✓</td></tr>
+          <tr class="p2 beat"><td>if a[2] &gt; a[3]: swap</td><td class="ne">not run</td><td class="cf ne">–</td><td>3 &lt; 7</td><td class="cf x">×</td></tr>
+        </tbody>
+      </table>
+      <div class="f">
+        <div class="box"><div class="k">encode</div><div class="m">A⁽⁰⁾ ∈ [1, 99]ⁿ, &nbsp;A⁽ᵗ⁺¹⁾ = op(A⁽ᵗ⁾)</div><div class="d">each trace card becomes a constraint on the array state</div></div>
+        <div class="box"><div class="k">keep the learner's path</div><div class="m">gₜ(A′) = gₜ(A) for every guard</div><div class="d">same comparisons and outcomes</div></div>
+        <div class="box"><div class="k">require failure</div><div class="m">¬Sorted(A′ after replay)</div></div>
+        <div class="box"><div class="k">minimize</div><div class="m">Σₖ |a′ₖ − aₖ|</div><div class="d">solved with Z3 (SMT) in well under a second</div></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // Three beats: the second pass that the counterexample requires.
+      How do we find that input? We compile the trace into SMT constraints.
+      Each card becomes a constraint on the array state. Then we ask the solver for an input where every guard evaluates the same way as in the learner's run, so the replay follows the same path, but the final array is not sorted. Among those inputs, we minimize the L1 distance to the original.
+      For Alice, that means changing one number: 4 becomes 2. The first pass behaves exactly as before.
+      [1] [2] [3] But this input needs a second pass, and that's the part of her procedure that's missing.
+      It's a small, exact change, and Z3 finds it in a fraction of a second.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="Architecture" data-min="0.5">
+    <div class="sec"><b>02</b>Implementation</div>
+    <h2>Three layers</h2>
+    <div class="arch">
+      <div class="l"><div class="t">Sketch layer</div><ul><li>Data pen: handwritten digits → array slots</li><li>Operation pens: the pen picks the operation, the stroke picks the elements</li><li>Gestures: merge / split cards</li></ul><div class="tech">Gemini 3.0 Flash · digit recognition</div></div>
+      <div class="l"><div class="t">Execution engine</div><ul><li>Versioned step sequence</li><li>Insert / delete → downstream recompute</li><li>Multi-instance replay with original ink</li></ul><div class="tech">React · TypeScript</div></div>
+      <div class="l"><div class="t">Symbolic engine</div><ul><li>Compile trace → SMT-LIB</li><li>Check correctness</li><li>Find the closest failing input</li></ul><div class="tech">Z3</div></div>
+    </div>
+    <div class="arch-back">↩ the counterexample comes back as a new instance to replay</div>
+    <aside class="notes">
+      // Static. Keep it short.
+      Briefly, the implementation. The sketch layer recognizes handwritten digits and maps strokes to operations. Stroke shape doesn't matter; what counts is which elements the stroke crosses.
+      The execution engine keeps a versioned sequence of steps and replays them across instances.
+      The symbolic engine compiles the trace to SMT, and the counterexample it finds is added back as a new instance the learner can practice on.
+    </aside>
+  </section>
+
+  <section class="slide" data-demo="demo3" data-title="Demo · Pancake Sort" data-fallback="../fallback/demo3.png" data-min="4">
+    <div class="ptag">Live demo <span class="sep">|</span> Pancake Sort</div>
+    <div class="d3">
+      <div class="window tablet">
+        <div class="pens">
+          <span class="pen" data-pen="data" style="--pc:#555"><i></i>Data</span>
+          <span class="pen" data-pen="fm" style="--pc:#e8862a"><i></i>find_max</span>
+          <span class="pen" data-pen="fl" style="--pc:#8e5bd6"><i></i>flip</span>
+          <span class="sep"></span><span class="lbl">user created</span><span class="userpen"></span>
+          <span class="spacer"></span>
+          <span class="views"><span data-v="value" class="on">value</span><span data-v="index">index</span><span data-v="param">param</span></span>
+          <span class="done">Check</span>
+        </div>
+        <div class="body">
+          <div class="canvas"><svg class="sheet" viewBox="0 0 1000 795"></svg>
+            <div class="hint"><span class="spark">✦</span>Hmmm, what if we make a small change to the input.</div></div>
+          <div class="plan"><div class="hdr">plan <span class="try">Try [3, 2, 4, 1]</span><span class="merge">Merge</span></div></div>
+        </div>
+      </div>
+      <svg class="cursor" viewBox="0 0 100 100"><g transform="translate(4,96) rotate(45)"><path d="M0 0 L-8 -20 L8 -20 Z" fill="#f2dcb8" stroke="#222" stroke-width="2.2" stroke-linejoin="round"/><path d="M0 0 L-3 -8 L3 -8 Z" fill="#222"/><rect x="-8" y="-78" width="16" height="58" rx="2.5" fill="#fff" stroke="#222" stroke-width="2.2"/><rect x="-8" y="-78" width="16" height="9" rx="2.5" fill="#cfcfcf" stroke="#222" stroke-width="2.2"/><line x1="-2" y1="-70" x2="-2" y2="-26" stroke="#ddd" stroke-width="2"/></g></svg>
+    </div>
+    <aside class="notes">
+      // Fourteen beats. All four capabilities on an unfamiliar algorithm.
+      // If short on time: compress beats 11–14 into one view switch.
+      Here's everything together on an algorithm most people haven't seen: pancake sort. You may only flip the top k pancakes.
+      [1] The learner writes 2, 3, 4, 1 with the Data pen. A trace card appears.
+      [2] find_max pen across all four: the 4 lights up.
+      [3] flip pen across the first three: the 4 comes to the front.
+      [4] flip across all four: 1, 2, 3, 4. Sorted, after one round.
+      [5] Check. Instead of an explanation, the system suggests a small change to the input.
+      [6] One tap: the input becomes 3, 2, 4, 1. Same procedure.
+      [7] Replay: find max, flip three, flip all. 1, 3, 2, 4. Not sorted. The missing repetition now has a visible consequence.
+      [8] The learner selects the three steps and merges them: one_round, their own pen.
+      [9] Apply it to the first three numbers.
+      [10] Then the first two. Sorted.
+      [11] Now the views.
+      [12] Index view: the rounds have the same structure; only the range changes.
+      [13] Merge the rounds into a loop: pancake_sort.
+      [14] Parameter view: i from n−1 down to 1.
+      That's pancake sort, and the learner can point at every line and say where it came from.
+    </aside>
+  </section>
+
+  <!-- ======================= STUDY ======================= -->
+
+  <section class="slide withsec study" data-title="Study" data-min="1">
+    <div class="sec"><b>03</b>Preliminary user study</div>
+    <div class="top">
+      <div class="big">20<small>participants</small></div>
+      <div class="meta">15 students (undergrad → PhD; CS, engineering, data science, linguistics)<br>5 instructors (secondary school, youth workshops, university)<br><span class="muted">In person · 11″ iPad Pro + Apple Pencil · ~60 min</span></div>
+    </div>
+    <div class="stages">
+      <div class="stage s1"><div class="tm">stage 1 · 25 min</div><div class="t">Bubble Sort</div><ul><li>familiar algorithm</li><li>paper sketch first</li><li>4 guided tasks, one per feature + ratings</li></ul></div>
+      <div class="stage s2"><div class="tm">stage 2 · 25 min</div><div class="t">Pancake Sort</div><ul><li>unfamiliar to everyone, including instructors</li><li>paper sketch first, then free construction</li><li>think-aloud; post-task questions</li></ul></div>
+      <div class="stage s3"><div class="tm">stage 3 · 10 min</div><div class="t">Survey</div><ul><li>UMUX-Lite</li><li>NASA-TLX</li><li>interview</li></ul></div>
+    </div>
+    <aside class="notes">
+      We ran a preliminary study with 20 participants: 15 students and 5 instructors, in person on an iPad with a pencil.
+      Stage one used bubble sort, which everyone knew, with four guided tasks that each introduced one feature.
+      Stage two used pancake sort, which nobody knew, not even the instructors. Participants built their own solution while thinking aloud.
+      In both stages they sketched on paper first, which gave us the paper sketches you saw earlier.
+      Finally, a survey and an interview.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="Ratings" data-min="1.5">
+    <div class="sec"><b>03</b>Results</div>
+    <div class="res">
+      <div>
+        <h2 style="font-size:52px;margin-bottom:10px">Feature ratings <span class="muted" style="font-size:30px;font-weight:500">7-point Likert, N = 20</span></h2>
+        <div class="bars">
+          <div class="br" style="--m:6.15;--pc:#d9480f"><div class="lab"><span>Counterexample validation</span><b>6.15</b></div><div class="track"><i></i></div><div class="rng">range 4–7</div></div>
+          <div class="br" style="--m:6.00"><div class="lab"><span>Reusable pens</span><b>6.00</b></div><div class="track"><i></i></div><div class="rng">range 4–7</div></div>
+          <div class="br" style="--m:5.60"><div class="lab"><span>Executable tracing</span><b>5.60</b></div><div class="track"><i></i></div><div class="rng">range 4–7</div></div>
+          <div class="br" style="--m:5.50"><div class="lab"><span>Multi-level trace views</span><b>5.50</b></div><div class="track"><i></i></div><div class="rng">range 3–7 · widest spread</div></div>
+        </div>
+        <div class="axis"><span>1</span><span>4</span><span>7</span></div>
+      </div>
+      <div>
+        <div class="stat"><div class="n">83.75 <small>UMUX-Lite</small></div><div class="d">SD 11.30 · an "A" on the curved SUS grading scale<br>usefulness 6.25 · usability 5.85</div></div>
+        <div class="stat beat" style="border-color:#7a7a7a"><div class="n">4.8 <small>/ 7 mental demand</small></div><div class="d">effort 4.6: the difficulty came from the algorithm, not the tool</div></div>
+        <div class="stat beat" style="border-color:var(--ok)"><div class="n">20 / 20</div><div class="d">answered the Pancake Sort conceptual and code questions correctly</div></div>
+      </div>
+    </div>
+    <aside class="notes">
+      // Two beats.
+      Participants rated all four features in the agreement range. Counterexamples scored highest at 6.15, followed by reusable pens at 6.0.
+      Multi-level views had the widest spread: some participants used them right away, others needed more time to get used to the representations.
+      Overall usability was high: UMUX-Lite 83.75, which corresponds to an A grade.
+      [1] Mental demand and effort were moderate to high. We read that as the intrinsic difficulty of the algorithm, a desirable difficulty, rather than a problem with the interface.
+      [2] And all participants answered the pancake sort post-task questions correctly. This is a descriptive outcome, not a learning gain, since there was no control condition.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-title="What participants said" data-min="1.5">
+    <div class="sec"><b>03</b>Results</div>
+    <h2>What participants said</h2>
+    <div class="quotes">
+      <div class="qq" style="--pc:var(--cmp)"><div class="f">Executable tracing</div><blockquote>"Saves you the process of calculating the loop."</blockquote><cite>P14</cite></div>
+      <div class="qq beat" style="--pc:var(--user)"><div class="f">Reusable pens</div><blockquote>A pen is "a function" you can define, then "use directly."</blockquote><cite>P4, P7</cite></div>
+      <div class="qq beat" style="--pc:var(--ps)"><div class="f">Multi-level views</div><blockquote>Turns an "instantiated exercise into an abstract learning experience."</blockquote><cite>P8</cite></div>
+      <div class="qq beat" style="--pc:var(--accent)"><div class="f">Counterexamples</div><blockquote>"Gives the wrong example so you can locate where logic breaks."</blockquote><cite>P7</cite></div>
+    </div>
+    <aside class="notes">
+      // Three beats, one per quote.
+      Some of what participants told us.
+      On executable tracing, P14 said it "saves you the process of calculating the loop." Several said they no longer had to simulate flips in their head.
+      [1] Pens were understood in programming terms: a function you define and then use directly. Merging was compared to if-else.
+      [2] Views: P8 described the progression as turning an "instantiated exercise into an abstract learning experience."
+      [3] And counterexamples. P11's bubble sort worked on 3, 1, 4, 2 but failed on 3, 2, 4, 1 because the final comparison was missing. P11 went back and added it.
+    </aside>
+  </section>
+
+  <section class="slide withsec inst" data-title="Instructors" data-min="1">
+    <div class="sec"><b>03</b>Instructor interviews</div>
+    <h2>"Very good for introductory learning."<span class="muted" style="font-size:30px;font-weight:500"> — E5</span></h2>
+    <div class="modes">
+      <div class="m"><div class="t">Verification practice</div><div class="d">Lecture first, then use the tool to check, replay, and locate errors.</div><div class="who">E4</div></div>
+      <div class="m beat"><div class="t">Self-paced homework</div><div class="d">"Doing it yourself helps more than watching."</div><div class="who">E1 · E2 · E4</div></div>
+      <div class="m beat"><div class="t">Needs prompted tasks</div><div class="d">Without challenge variations, learners may stop after the first success.</div><div class="who">E3</div></div>
+    </div>
+    <div class="beat"><div class="flow-l">A hybrid schedule that emerged</div>
+      <div class="flow"><div class="s">in-class concept brief + guided demo</div><span class="a">→</span><div class="s">homework: basic trace</div><span class="a">→</span><div class="s">counterexample repair</div><span class="a">→</span><div class="s">abstraction / merge</div><span class="a">→</span><div class="s">debrief on common failures</div></div></div>
+    <aside class="notes">
+      // Three beats.
+      Instructors saw SketchMind as most useful for novices, and they disagreed in useful ways about where it fits.
+      E4 sees it as verification practice: teach the algorithm first, then use the tool to check and locate errors.
+      [1] Others preferred self-paced homework, because doing helps more than watching. E2 said it shifts learners from "this array" to "arrays in general."
+      [2] E3 warned that without prompted tasks, many learners stop after their first success.
+      [3] Putting this together gives a hybrid: a short in-class demo, then homework that moves from a basic trace to counterexample repair to abstraction, then a debrief.
+    </aside>
+  </section>
+
+  <!-- ======================= DISCUSSION ======================= -->
+
+  <section class="slide withsec" data-title="Discussion & limitations" data-min="1.5">
+    <div class="sec"><b>04</b>Discussion</div>
+    <div class="disc">
+      <div>
+        <h3>Toward a general SketchMind</h3>
+        <div class="reuse"><div><b>reused across algorithms</b>canvas · trace · replay · pen composition · counterexample pipeline</div><div class="spec"><b>per algorithm</b>primitive pens · visual model · views · SMT predicates</div></div>
+        <ul>
+          <li>Bubble → Pancake reused the infrastructure; it added range selection, find_max and flip.</li>
+          <li class="beat">Learners' own visual language (bars, circles, bubbles) is a cue we don't use yet.</li>
+        </ul>
+      </div>
+      <div class="beat">
+        <h3>Limitations</h3>
+        <ul>
+          <li>Proof of concept: two array-based sorting algorithms with local, sequential operations.</li>
+          <li>Learners compose pens, but cannot define new primitives.</li>
+          <li>The minimal change is not always the most instructive one.</li>
+          <li>We measured usability, not learning outcomes. No transfer, retention, or control group.</li>
+        </ul>
+      </div>
+    </div>
+    <aside class="notes">
+      // Two beats.
+      What would a general SketchMind take? The canvas, the trace, replay, composition, and the counterexample search carry over between algorithms. Going from bubble to pancake reused all of them. What's specific to each algorithm are the primitive pens, the visual model, the views, and the SMT predicates.
+      [1] Participants also drew bars, circles, and bubbles. A future system could interpret that visual language.
+      [2] Limitations: this is a proof of concept for two sorting algorithms. Learners can't define new primitives. The smallest change isn't always the most instructive one. And we studied usability, not learning gains.
+    </aside>
+  </section>
+
+  <section class="slide withsec ongo" data-title="Ongoing · LLM vs SMT" data-min="1">
+    <div class="sec"><b>04</b>Ongoing work</div>
+    <h2>Could an LLM find the counterexample instead?<span class="tag">preliminary</span></h2>
+    <table>
+      <thead><tr><th>method</th><th>correct (50 Bubble Sort cases: 42 buggy + 8 correct)</th><th>controls → "none"</th><th>median time</th></tr></thead>
+      <tbody>
+        <tr><td>SMT (Z3)</td><td>43 / 50</td><td>8 / 8</td><td class="hi">0.3 s</td></tr>
+        <tr><td>gemini-3.8-flash</td><td class="hi">50 / 50</td><td>8 / 8</td><td>15.5 s</td></tr>
+        <tr><td>gpt-5.5</td><td class="hi">50 / 50</td><td>8 / 8</td><td>18.7 s</td></tr>
+        <tr><td>gpt-4o</td><td class="lo">9 / 50</td><td class="lo">0 / 8</td><td>1.1 s</td></tr>
+      </tbody>
+    </table>
+    <div class="note">All 7 SMT misses come from one case, a swap with no compare before it, and they trace back to an encoding bug we are fixing.<br>Strong LLMs answer correctly but are ~50× slower, and their counterexamples tend to sit further from the learner's example.</div>
+    <aside class="notes">
+      // Optional. Drop this slide if time is short.
+      One question we often get: why not just ask an LLM? We're testing that now.
+      On 50 bubble sort cases, recent models like Gemini 3.8 Flash and GPT-5.5 found valid counterexamples every time, but took 15 to 20 seconds each. GPT-4o did poorly and said a counterexample existed even for correct algorithms.
+      SMT runs in a third of a second. Its misses all came from one scenario, a swap with no comparison before it, which turned out to be an encoding bug.
+      In an earlier run, LLM counterexamples were also further from the original array, which makes them harder to connect to the learner's example.
+    </aside>
+  </section>
+
+  <section class="slide center end" data-title="Thank you" data-min="0.5">
+    <div class="kicker">Thank you</div>
+    <h1>SketchMind</h1>
+    <p class="sub" style="margin-top:0">Build the algorithm by drawing on the trace.</p>
+    <div class="caps">
+      <div style="--pc:var(--cmp)">Executable tracing</div>
+      <div style="--pc:var(--user)">Reusable pens</div>
+      <div style="--pc:var(--ps)">Multi-level views</div>
+      <div style="--pc:var(--accent)">Minimal counterexamples</div>
+    </div>
+    <div class="link"><a href="https://peachlab.inf.ethz.ch/projects/sketchmind/" target="_blank" rel="noopener">peachlab.inf.ethz.ch/projects/sketchmind</a> &nbsp;·&nbsp; yang.wu@inf.ethz.ch</div>
+    <div class="authors" style="font-size:28px">Yang Wu · Clément Pit-Claudel · April Yi Wang</div>
+    <aside class="notes">
+      To sum up: SketchMind turns tracing into construction. Strokes execute, steps become pens, the views move from values to parameters, and minimal counterexamples show where the reasoning stops generalizing.
+      Thank you. I'm happy to take questions.
+    </aside>
+  </section>
+
+  <div id="fallback"><div class="tag">fallback</div><img alt=""></div>
+  <div id="progress"></div>
+  <div id="foot"><img class="logo" src="assets/eth-logo.png" alt="ETH Zürich" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'logo-text',textContent:'ETH zürich'}))"><span class="sep"></span><span>SketchMind</span><span class="sep"></span><span>Yang Wu</span><span class="sep"></span><span>UIST 2026</span></div>
+  <div id="hud"></div>
+  <div id="toc"></div>
+</div>
+
+<script src="../js/deck.js"></script>
+<script src="../js/demo3.js"></script>
+<script src="js/sm-bubble.js"></script>
+</body>
+</html>

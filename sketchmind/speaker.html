@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Speaker</title>
+<style>
+  :root { --bg:#141414; --fg:#eee; --muted:#888; --accent:#ff7a2f; }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;}
+  #wrap{display:grid;grid-template-columns:1fr 340px;grid-template-rows:auto 1fr;height:100%;gap:0}
+  #top{grid-column:1/3;display:flex;align-items:baseline;gap:28px;padding:18px 28px;border-bottom:1px solid #2a2a2a}
+  #title{font-size:26px;font-weight:600}
+  #pos{color:var(--muted);font-variant-numeric:tabular-nums;font-size:18px}
+  #beat{color:var(--accent);font-variant-numeric:tabular-nums;font-size:18px}
+  #notes{padding:28px 32px;font-size:26px;line-height:1.5;overflow:auto}
+  #notes p{margin:0 0 18px}
+  #notes .b{display:inline-block;min-width:44px;color:var(--accent);font-variant-numeric:tabular-nums}
+  #notes .b.now{background:var(--accent);color:#000;border-radius:6px;padding:0 8px}
+.delta{font-size:14px;color:#999;margin-top:4px;font-family:ui-monospace,monospace}
+  .delta.ok{color:#2b8a3e}.delta.warn{color:#d9480f}.delta.late{color:#c92a2a;font-weight:700}
+  #expected{font-size:44px;color:#666;font-variant-numeric:tabular-nums}
+  .ver{font-size:13px;color:#999;font-family:ui-monospace,monospace}
+  .ver b{color:#666;font-weight:600}
+  #notes .cue{color:#cbb;font-style:italic}
+  #notes .dir{color:#8a8;font-size:.85em;font-family:ui-monospace,monospace}
+  #side{border-left:1px solid #2a2a2a;padding:24px;display:flex;flex-direction:column;gap:22px}
+  #clock{font-size:64px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  #elapsed{font-size:44px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .lbl{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px}
+  #next{font-size:20px;color:#ccc}
+  .keys{margin-top:auto;color:#666;font-size:13px;line-height:1.7}
+  button{background:#222;color:#eee;border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="top"><span id="title">—</span><span id="pos"></span><span id="beat"></span></div>
+  <div id="notes"><p class="cue">Waiting for the deck… (press S in the deck window, or click ↻)</p></div>
+  <div id="side">
+    <div><div class="lbl">Clock</div><div id="clock">--:--</div></div>
+    <div><div class="lbl">Elapsed</div><div id="elapsed">00:00</div></div>
+    <div><div class="lbl">Expected</div><div id="expected">--:--</div><div id="delta" class="delta"></div></div>
+    <div><div class="lbl">Next</div><div id="next">—</div></div>
+    <div class="row">
+      <button onclick="cmd('prev')">◀ prev</button>
+      <button onclick="cmd('next')">next ▶</button>
+      <button onclick="cmd('reset')">R reset</button>
+      <button onclick="cmd('timer')">⏱ restart</button>
+      <button onclick="cmd('hello')">↻</button>
+    </div>
+    <div class="ver">deck version <b id="ver">—</b></div>
+    <div class="keys">→ / Space next beat · ← back · Shift+→ skip slide<br>R reset demo · V fallback image · T restart timer · F fullscreen</div>
+  </div>
+</div>
+<script>
+  const ch = new BroadcastChannel('deck');
+  let t0 = null;
+  function cmd(c){ ch.postMessage({type:'cmd', cmd:c}); }
+  ch.onmessage = (ev) => {
+    const s = ev.data; if (s.type !== 'state') return;
+    document.getElementById('title').textContent = s.title || '(untitled)';
+    document.getElementById('pos').textContent = `slide ${s.cur+1} / ${s.total}`;
+    document.getElementById('beat').textContent = s.beats ? `beat ${s.beat} / ${s.beats}` : '';
+    document.getElementById('next').textContent = s.nextTitle;
+    t0 = s.t0 || t0;
+    exp = { start: s.expStart || 0, dur: s.expDur || 0, beat: s.beat, beats: s.beats, total: s.expTotal || 0 }; tickExp();
+    document.getElementById('ver').textContent = s.version || '(unknown)';
+    renderNotes(s.notes, s.beat);
+  };
+  function renderNotes(html, beat){
+    // Notes are plain lines. Lines starting with "[n]" are beat cues; the current one is highlighted.
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    const lines = tmp.textContent.split('\n').map(l=>l.trim()).filter(Boolean);
+    const out = lines.map(l => {
+      const m = l.match(/^\[(\d+)\]\s*(.*)$/);
+      if (m) return `<p><span class="b ${+m[1]===beat?'now':''}">[${m[1]}]</span> ${esc(m[2])}</p>`;
+      if (/^>/.test(l)) return `<p class="cue">${esc(l.replace(/^>\s?/,''))}</p>`;
+      if (/^\/\//.test(l)) return `<p class="dir">${esc(l.replace(/^\/\/\s?/,''))}</p>`;
+      return `<p>${esc(l)}</p>`;
+    }).join('');
+    document.getElementById('notes').innerHTML = out || '<p class="cue">(no notes)</p>';
+    const now = document.querySelector('.b.now'); if (now) now.scrollIntoView({block:'center'});
+  }
+  let exp = null;
+  const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); };
+  function tickExp(){
+    if (!exp) return;
+    // where you should be right now: start of this slide + the share of it covered by the current beat
+    const frac = exp.beats ? exp.beat / exp.beats : 0;
+    const target = (exp.start + exp.dur * frac) * 60;
+    document.getElementById('expected').textContent = mmss(target);
+    const el = document.getElementById('delta');
+    if (!t0) { el.textContent = `this slide: ${mmss(exp.start*60)}–${mmss((exp.start+exp.dur)*60)}`; el.className = 'delta'; return; }
+    const d = (Date.now() - t0) / 1000 - target;
+    el.textContent = (Math.abs(d) < 30 ? 'on time' : (d > 0 ? `${mmss(d)} behind` : `${mmss(-d)} ahead`)) + ` · slide ${mmss(exp.start*60)}–${mmss((exp.start+exp.dur)*60)}`;
+    el.className = 'delta ' + (d > 90 ? 'late' : d > 30 ? 'warn' : 'ok');
+  }
+  setInterval(tickExp, 1000);
+  function esc(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  setInterval(() => {
+    const d = new Date();
+    document.getElementById('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    if (t0) { const e = Math.floor((Date.now()-t0)/1000); document.getElementById('elapsed').textContent = `${pad(Math.floor(e/60))}:${pad(e%60)}`; }
+  }, 500);
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key===' ') { e.preventDefault(); cmd('next'); }
+    else if (e.key==='ArrowLeft') { e.preventDefault(); cmd('prev'); }
+    else if (e.key==='r'||e.key==='R') cmd('reset');
+  });
+  cmd('hello');
+</script>
+</body>
+</html>
