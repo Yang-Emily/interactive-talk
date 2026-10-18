@@ -25,6 +25,7 @@
   #side{border-left:1px solid #2a2a2a;padding:24px;display:flex;flex-direction:column;gap:22px}
   #clock{font-size:64px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
   #elapsed{font-size:44px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .budget{font-size:15px;color:#aaa;line-height:1.4;margin-top:8px;font-variant-numeric:tabular-nums}
   .lbl{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px}
   #next{font-size:20px;color:#ccc}
   .keys{margin-top:auto;color:#666;font-size:13px;line-height:1.7}
@@ -38,7 +39,7 @@
   <div id="notes"><p class="cue">Waiting for the deck… (press S in the deck window, or click ↻)</p></div>
   <div id="side">
     <div><div class="lbl">Clock</div><div id="clock">--:--</div></div>
-    <div><div class="lbl">Elapsed</div><div id="elapsed">00:00</div></div>
+    <div><div class="lbl">Elapsed</div><div id="elapsed">00:00</div><div id="budget" class="budget" hidden></div></div>
     <div><div class="lbl">Expected</div><div id="expected">--:--</div><div id="delta" class="delta"></div></div>
     <div><div class="lbl">Next</div><div id="next">—</div></div>
     <div class="row">
@@ -53,17 +54,22 @@
   </div>
 </div>
 <script>
-  const ch = new BroadcastChannel('deck');
+  const deckId = new URL('.', location.href).pathname;
+  const ch = new BroadcastChannel('deck:' + deckId);
   let t0 = null;
-  function cmd(c){ ch.postMessage({type:'cmd', cmd:c}); }
+  function cmd(c){ ch.postMessage({type:'cmd', deckId, cmd:c}); }
   ch.onmessage = (ev) => {
-    const s = ev.data; if (s.type !== 'state') return;
+    const s = ev.data; if (s.type !== 'state' || s.deckId !== deckId) return;
     document.getElementById('title').textContent = s.title || '(untitled)';
     document.getElementById('pos').textContent = `slide ${s.cur+1} / ${s.total}`;
     document.getElementById('beat').textContent = s.beats ? `beat ${s.beat} / ${s.beats}` : '';
     document.getElementById('next').textContent = s.nextTitle;
     t0 = s.t0 || t0;
-    exp = { start: s.expStart || 0, dur: s.expDur || 0, beat: s.beat, beats: s.beats, total: s.expTotal || 0 }; tickExp();
+    exp = { start: s.expStart || 0, dur: s.expDur || 0, beat: s.beat, beats: s.beats, total: s.expTotal || 0 };
+    const budget = document.getElementById('budget');
+    budget.hidden = !s.qaMinutes;
+    budget.textContent = s.qaMinutes ? `Talk ${mmss(exp.total*60)} · Q&A ${mmss(s.qaMinutes*60)}` : '';
+    tickExp();
     document.getElementById('ver').textContent = s.version || '(unknown)';
     renderNotes(s.notes, s.beat);
   };

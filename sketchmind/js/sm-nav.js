@@ -36,7 +36,7 @@
   // [{ mark, name, items, subs: [{ mark, name, items }] }]; a group's items include its subs' items
   function sections() {
     const groups = [];
-    document.querySelectorAll('section.slide').forEach((sec, i) => {
+    document.querySelectorAll('section.slide:not([data-skip])').forEach((sec, i) => {
       const lab = sec.querySelector('.sec');
       const mark = lab ? lab.querySelector('b').textContent.trim() : '';
       const name = lab ? (GROUP_NAMES[mark] || lab.textContent.replace(mark, '').trim()) : '';
@@ -56,7 +56,7 @@
   function buildToc() {
     const toc = document.getElementById('toc');
     if (!toc) return;
-    const slides = [...document.querySelectorAll('section.slide')];
+    const slides = [...document.querySelectorAll('section.slide:not([data-skip])')];
     const groups = sections();
     const li = (i) => `<li data-i="${i}"><span class="n">${i + 1}</span><span class="t">${esc(title(slides[i]))}</span></li>`;
     const own = (g) => g.items.filter((i) => !g.subs.some((s) => s.items.includes(i)));
@@ -75,7 +75,7 @@
   // This also supports loading the navigation after the deck has already booted.
   function initialize() {
     const state = window.Deck?.state();
-    if (state) renderHud({ ...state, total: document.querySelectorAll('section.slide').length });
+    if (state) renderHud({ ...state, total: document.querySelectorAll('section.slide:not([data-skip])').length });
     setTimeout(buildToc, 0);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize);

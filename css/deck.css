@@ -38,6 +38,7 @@ section.slide.center { display: none; }
 section.slide.center.active { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
 
 section.slide aside.notes { display: none; }
+section.slide[data-skip] { display: none !important; }   /* left out of the talk; remove data-skip to bring it back */
 
 h1 { font-size: 96px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 24px; }
 h2 { font-size: 64px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; margin: 0 0 32px; }

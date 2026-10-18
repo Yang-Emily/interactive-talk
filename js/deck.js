@@ -26,6 +26,8 @@
   let beat = 0;              // beats applied on current slide (0 = none)
   let channel = null;
   let t0 = null;
+  // Separate talks served from the same origin must never share speaker traffic.
+  const deckId = new URL('.', location.href).pathname;
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -155,7 +157,7 @@
     const notes = $('aside.notes', sec);
     const nextSec = slides[cur + 1];
     return {
-      type: 'state', cur, beat, total: slides.length, beats: totalBeats(sec),
+      type: 'state', deckId, cur, beat, total: slides.length, beats: totalBeats(sec),
       title: sec.dataset.title || sec.querySelector('h1,h2,h3')?.textContent || '',
       nextTitle: nextSec ? (nextSec.dataset.title || nextSec.querySelector('h1,h2,h3')?.textContent || '') : '— end —',
       notes: notes ? notes.innerHTML : '',
@@ -163,11 +165,12 @@
       expStart: slides.slice(0, cur).reduce((a, x) => a + (+x.dataset.min || 0), 0),   // minutes
       expDur: +sec.dataset.min || 0,
       expTotal: slides.reduce((a, x) => a + (+x.dataset.min || 0), 0),
+      qaMinutes: +document.querySelector('meta[name="qa-minutes"]')?.content || 0,
       t0
     };
   }
   function openSpeaker() {
-    window.open('speaker.html', 'speaker', 'width=1100,height=760');
+    window.open('speaker.html?v=94', 'speaker-' + encodeURIComponent(deckId), 'width=1100,height=760');
     if (!t0) t0 = Date.now();
     setTimeout(sync, 300);
   }
@@ -191,15 +194,15 @@
 
   /* ---------- boot ---------- */
   function boot() {
-    slides = $$('section.slide');
+    slides = $$('section.slide:not([data-skip])');   // data-skip leaves a slide out of the talk without deleting it
     fit(); window.addEventListener('resize', fit);
     document.addEventListener('keydown', onKey);
     buildToc(); $('#hud').addEventListener('click', toggleToc);
     if ('BroadcastChannel' in window) {
-      channel = new BroadcastChannel('deck');
+      channel = new BroadcastChannel('deck:' + deckId);
       channel.onmessage = (ev) => {
         const m = ev.data;
-        if (m.type === 'cmd') {
+        if (m.type === 'cmd' && m.deckId === deckId) {
           if (m.cmd === 'next') next(); else if (m.cmd === 'prev') prev();
           else if (m.cmd === 'reset') resetDemo(); else if (m.cmd === 'hello') sync();
           else if (m.cmd === 'timer') { t0 = Date.now(); sync(); }
@@ -208,7 +211,7 @@
     }
     const m = location.hash.match(/#(\d+)(?:\/(\d+))?/);
     goto(m ? +m[1] : 0, m ? +(m[2] || 0) : 0);
-    if (matchMedia('print').matches) $$('section.slide').forEach(s => applyState(s, totalBeats(s), true));
+    if (matchMedia('print').matches) slides.forEach(s => applyState(s, totalBeats(s), true));
     window.addEventListener('beforeprint', () => slides.forEach(s => applyState(s, totalBeats(s), true)));
   }
 
