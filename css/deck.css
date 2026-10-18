@@ -61,7 +61,9 @@ pre { background: var(--code-bg); border-radius: 12px; padding: 28px 32px; font-
 .ptag .sep { color: #ccc; margin: 0 8px; }
 #hud { position: absolute; right: 40px; bottom: 34px; height: 40px; line-height: 40px; padding: 0 10px; font-size: 20px; color: #bbb; font-variant-numeric: tabular-nums; cursor: pointer; padding: 6px 10px; border-radius: 8px; z-index: 40; }
 #hud:hover { background: rgba(0,0,0,.05); color: #666; }
-/* table of contents overlay */
+#hud { display: flex; align-items: center; gap: 16px; }
+#hud .pg b { font-weight: 600; color: #888; }
+#hud .pg .of { margin-left: 6px; color: #c4c4c4; }/* table of contents overlay */
 #toc { position: absolute; inset: 0; z-index: 50; background: rgba(20,20,20,.45); display: none; align-items: center; justify-content: center; }
 #toc.on { display: flex; }
 #toc .tocbox { width: 820px; max-height: 1000px; background: #fff; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.35); overflow: hidden; display: flex; flex-direction: column; }

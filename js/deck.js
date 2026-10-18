@@ -142,9 +142,12 @@
   function sync() {
     const sec = slides[cur];
     const tb = totalBeats(sec);
-    $('#hud').textContent = `${cur + 1}/${slides.length}` + (tb ? `  ·  ${beat}/${tb}` : '');
-    $('#progress').style.width = (100 * (cur + (tb ? beat / tb : 0)) / slides.length) + '%';
+    // page number counts slides only; steps (animations) within a slide don't change it
+    $('#hud').innerHTML = `<span class="pg"><b>${cur + 1}</b><span class="of">/ ${slides.length}</span></span>`;
+    $('#progress').style.width = (100 * (cur + 1) / slides.length) + '%';
     history.replaceState(null, '', `#${cur}/${beat}`);
+    // a deck can draw its own page indicator from this
+    document.dispatchEvent(new CustomEvent('deck:sync', { detail: { cur, beat, total: slides.length, beats: tb } }));
     if (channel) channel.postMessage(state());
   }
   function state() {
@@ -211,6 +214,7 @@
 
   Deck.next = next; Deck.prev = prev; Deck.goto = goto; Deck.reset = resetDemo;
   Deck.state = () => ({ cur, beat });
+  Deck.beatsOf = (i) => totalBeats(slides[i]);
   window.Deck = Deck;
   document.addEventListener('DOMContentLoaded', boot);
 })();
