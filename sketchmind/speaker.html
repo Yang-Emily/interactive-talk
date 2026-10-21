@@ -49,7 +49,7 @@
       <button onclick="cmd('timer')">⏱ restart</button>
       <button onclick="cmd('hello')">↻</button>
     </div>
-    <div class="ver">deck version <b id="ver">—</b></div>
+    <div class="ver">deck version <b id="ver">—</b> <span id="others" style="color:#e8a33d"></span></div>
     <div class="keys">→ / Space next beat · ← back · Shift+→ skip slide<br>R reset demo · V fallback image · T restart timer · F fullscreen</div>
   </div>
 </div>
@@ -57,9 +57,14 @@
   const deckId = new URL('.', location.href).pathname;
   const ch = new BroadcastChannel('deck:' + deckId);
   let t0 = null;
-  function cmd(c){ ch.postMessage({type:'cmd', deckId, cmd:c}); }
+  // follow one deck tab only: the one that opened this window (?inst=…), else the first that answers
+  let lock = new URL(location.href).searchParams.get('inst');
+  const others = new Set();
+  function cmd(c){ ch.postMessage({type:'cmd', deckId, inst: lock, cmd:c}); }
   ch.onmessage = (ev) => {
     const s = ev.data; if (s.type !== 'state' || s.deckId !== deckId) return;
+    if (!lock && s.inst) lock = s.inst;
+    if (lock && s.inst !== lock) { others.add(s.inst || 'old'); document.getElementById('others').textContent = `${others.size} other deck tab${others.size > 1 ? 's' : ''} open (ignored)`; return; }
     document.getElementById('title').textContent = s.title || '(untitled)';
     document.getElementById('pos').textContent = `slide ${s.cur+1} / ${s.total}`;
     document.getElementById('beat').textContent = s.beats ? `beat ${s.beat} / ${s.beats}` : '';
@@ -71,9 +76,11 @@
     budget.textContent = s.qaMinutes ? `Talk ${mmss(exp.total*60)} · Q&A ${mmss(s.qaMinutes*60)}` : '';
     tickExp();
     document.getElementById('ver').textContent = s.version || '(unknown)';
-    renderNotes(s.notes, s.beat);
+    const newSlide = s.cur !== lastCur; lastCur = s.cur;
+    renderNotes(s.notes, s.beat, newSlide);
   };
-  function renderNotes(html, beat){
+  let lastCur = -1;
+  function renderNotes(html, beat, newSlide){
     // Notes are plain lines. Lines starting with "[n]" are beat cues; the current one is highlighted.
     const tmp = document.createElement('div'); tmp.innerHTML = html;
     const lines = tmp.textContent.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -85,7 +92,10 @@
       return `<p>${esc(l)}</p>`;
     }).join('');
     document.getElementById('notes').innerHTML = out || '<p class="cue">(no notes)</p>';
-    const now = document.querySelector('.b.now'); if (now) now.scrollIntoView({block:'center'});
+    // a new slide starts at the top of its notes; within a slide, keep the current click's line in view
+    const box = document.getElementById('notes');
+    if (newSlide || !beat) box.scrollTop = 0;
+    else { const now = document.querySelector('.b.now'); if (now) now.scrollIntoView({block:'center'}); }
   }
   let exp = null;
   const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); };

@@ -152,12 +152,14 @@
     document.dispatchEvent(new CustomEvent('deck:sync', { detail: { cur, beat, total: slides.length, beats: tb } }));
     if (channel) channel.postMessage(state());
   }
+  // each open deck tab has its own id, so a speaker window follows only the tab that opened it
+  const inst = Math.random().toString(36).slice(2, 10);
   function state() {
     const sec = slides[cur];
     const notes = $('aside.notes', sec);
     const nextSec = slides[cur + 1];
     return {
-      type: 'state', deckId, cur, beat, total: slides.length, beats: totalBeats(sec),
+      type: 'state', deckId, inst, cur, beat, total: slides.length, beats: totalBeats(sec),
       title: sec.dataset.title || sec.querySelector('h1,h2,h3')?.textContent || '',
       nextTitle: nextSec ? (nextSec.dataset.title || nextSec.querySelector('h1,h2,h3')?.textContent || '') : '— end —',
       notes: notes ? notes.innerHTML : '',
@@ -170,7 +172,7 @@
     };
   }
   function openSpeaker() {
-    window.open('speaker.html?v=94', 'speaker-' + encodeURIComponent(deckId), 'width=1100,height=760');
+    window.open('speaker.html?v=96&inst=' + inst, 'speaker-' + encodeURIComponent(deckId), 'width=1100,height=760');
     if (!t0) t0 = Date.now();
     setTimeout(sync, 300);
   }
@@ -202,7 +204,7 @@
       channel = new BroadcastChannel('deck:' + deckId);
       channel.onmessage = (ev) => {
         const m = ev.data;
-        if (m.type === 'cmd' && m.deckId === deckId) {
+        if (m.type === 'cmd' && m.deckId === deckId && (!m.inst || m.inst === inst)) {
           if (m.cmd === 'next') next(); else if (m.cmd === 'prev') prev();
           else if (m.cmd === 'reset') resetDemo(); else if (m.cmd === 'hello') sync();
           else if (m.cmd === 'timer') { t0 = Date.now(); sync(); }

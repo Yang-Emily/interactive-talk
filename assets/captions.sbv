@@ -1,0 +1,26 @@
+0:00:00.240,0:00:05.040
+SketchMind: Toward Executable Pen-Based 
+Sketching for Constructing Sorting Algorithms
+
+0:00:05.040,0:00:08.240
+When learning algorithms, we often 
+trace them with pen and paper,
+
+0:00:08.240,0:00:12.880
+but these traces can get long and go wrong.
+SketchMind turns learners’ sketches into
+
+0:00:12.880,0:00:16.640
+executable plans. Users can draw 
+free-form strokes to perform
+
+0:00:16.640,0:00:21.840
+operations. The system keeps a replayable 
+record of the learner’s reasoning process.
+
+0:00:21.840,0:00:27.680
+SketchMind provides counterexamples as feedback 
+to help learners identify and fix their plans.
+
+0:00:27.680,0:00:29.537
+You can find more features in our paper.

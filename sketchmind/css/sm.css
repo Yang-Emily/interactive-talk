@@ -85,7 +85,7 @@ section.slide:has(.vidslide.wide) h2 { margin-bottom: 12px; }
 .vidslide .cap.on { opacity: 1; }
 .vidslide .cap.sub2 { font-size: 27px; color: #555; }
 .vidslide .r, .smt .x { color: var(--bad); }
-.pc-data { color: var(--data); } .pc-cmp { color: var(--cmp); } .pc-swp { color: var(--swp); } .pc-user { color: var(--user); }
+.pc-cas { color: #4c6ef5; } .pc-data { color: var(--data); } .pc-cmp { color: var(--cmp); } .pc-swp { color: var(--swp); } .pc-user { color: var(--user); }
 
 /* ---------- closing ---------- */
 .end2 .ovwrap { position: relative; width: fit-content; margin: 0 auto; }
@@ -553,8 +553,8 @@ section.slide:has(.vidslide.wide) h2 { margin-bottom: 12px; }
 .th .tt { margin: 4px 0 14px; }
 .th .tt small { font-size: 18px; font-weight: 600; color: #b8661c; background: #fff4e6; border-radius: 6px; padding: 2px 8px; margin-left: 10px; vertical-align: 4px; letter-spacing: 0; }
 .th .tb { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: center; }
-.th .qq blockquote { margin: 0; font-size: 22px; line-height: 1.32; color: #333; }
-.th .qq cite { display: block; font-style: normal; font-size: 17px; color: var(--muted); margin: 3px 0 12px; }
+.th .qq blockquote { margin: 0; font-size: 28px; line-height: 1.32; color: #222; }
+.th .qq cite { display: block; font-style: normal; font-size: 20px; color: var(--muted); margin: 3px 0 12px; }
 .th .qq cite:last-child { margin-bottom: 0; }
 .th .vis { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; border-radius: 14px; background: #fff; }
 .th .vis .cap { font-size: 15px; color: var(--muted); text-align: center; margin-top: 2px; }
@@ -890,3 +890,10 @@ section.slide.bkdiv.active { align-items: center; }
 .bkdiv .sec { display: none; }
 #toc .gh.go { cursor: pointer; border-radius: 8px; }
 #toc .gh.go:hover { background: rgba(0,0,0,.05); color: #555; }
+
+/* pen-creation flight over the recordings (see js/sm-penflight.js) */
+.pf-cover { position: absolute; display: none; z-index: 2; pointer-events: none; }
+.pf-chip { position: absolute; display: none; z-index: 3; height: auto; pointer-events: none; border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(60, 40, 120, .25); }
+.pf-patch { position: absolute; display: none; z-index: 2; pointer-events: none; }
+.inst2 .fn a { color: inherit; text-decoration: none; border-bottom: 1px solid #ccc; }

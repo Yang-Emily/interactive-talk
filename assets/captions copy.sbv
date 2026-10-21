@@ -1,0 +1,248 @@
+0:00:00.000,0:00:04.240
+supporting algorithm reasoning 
+through executable sketching
+
+0:00:04.240,0:00:06.640
+When students learn a new algorithm,
+
+0:00:06.640,0:00:11.360
+they are often taught through step-by-step 
+descriptions and visual animations.
+
+0:00:11.360,0:00:16.080
+An algorithm is essentially a recipe, 
+a sequence of steps to follow.
+
+0:00:16.080,0:00:20.560
+However, understanding an algorithm 
+is not just about reading or watching.
+
+0:00:20.560,0:00:24.640
+Students need to mentally walk through 
+the steps to truly digest them.
+
+0:00:24.640,0:00:29.360
+At this stage, they may not yet know 
+how to implement the algorithm in code
+
+0:00:29.360,0:00:34.000
+and are just beginning to build a 
+mental model of how the algorithm works.
+
+0:00:34.000,0:00:37.440
+So how can they tell whether 
+they truly understand it?
+
+0:00:37.440,0:00:43.760
+One common way to check their understanding is to 
+walk through the algorithm in a concrete example,
+
+0:00:43.760,0:00:46.720
+sketching each step along the way.
+
+0:00:46.720,0:00:52.160
+Let's say Alice starts with 
+this array, 5, 2, 3, 4, 1.
+
+0:00:52.160,0:00:54.080
+She begins step by step.
+
+0:00:54.080,0:01:00.640
+She compares 5 and 2, swaps them, and 
+compares 5 and 3, and then 5 and 4.
+
+0:01:00.640,0:01:06.800
+As she continues, the trace quickly grows longer.
+The layout becomes much less organized.
+
+0:01:06.800,0:01:10.960
+She moves to a new page and 
+copies the current state.
+
+0:01:10.960,0:01:13.520
+But here, she missed a swap.
+
+0:01:13.520,0:01:16.640
+She continues without even noticing this mistake.
+
+0:01:16.640,0:01:22.400
+To make it faster, she also starts skipping 
+some steps, doing parts of it mentally.
+
+0:01:22.400,0:01:27.280
+When Alice looks back at her note, it's 
+difficult to reconstruct the full process.
+
+0:01:27.280,0:01:29.680
+The sketches don't have a clear structure.
+
+0:01:29.680,0:01:33.120
+It's also hard to reuse this 
+process for other inputs.
+
+0:01:33.120,0:01:37.840
+What she has is just a messy 
+record for one specific example.
+
+0:01:37.840,0:01:42.480
+To address these challenges, we 
+present SketchMind to help users
+
+0:01:42.480,0:01:47.040
+externalize, execute, and check their 
+understanding of a given algorithm.
+
+0:01:47.040,0:01:50.320
+First, SketchMind supports executable tracing.
+
+0:01:50.320,0:01:55.360
+Users can use different pen tools 
+to execute operations in real time.
+
+0:01:55.360,0:02:01.200
+In BubbleSort, we provide a toolbox of 
+primitives, such as compare and switch.
+
+0:02:01.200,0:02:07.680
+Alice sketches an array on the left canvas, 
+and the system recognizes it as an array.
+
+0:02:07.680,0:02:11.200
+She selects the compare 
+tool and marks two numbers.
+
+0:02:11.200,0:02:16.880
+The result appears on the right-hand 
+panel, showing that 3 is greater than 1.
+
+0:02:16.880,0:02:20.240
+She then uses the swap tool to exchange them.
+
+0:02:20.240,0:02:24.800
+SketchMind supports diverse drawing 
+styles, allowing users to sketch
+
+0:02:24.800,0:02:31.120
+naturally while maintaining a clear, 
+replayable record of their reasoning.
+
+0:02:31.120,0:02:36.640
+Building on this, SketchMind allows users 
+to merge steps into high-level logic,
+
+0:02:36.640,0:02:42.160
+such as if-else conditions or loops, 
+which can then be reused as new tools.
+
+0:02:42.800,0:02:47.040
+Alice noticed that she often compares 
+two elements and then swaps them,
+
+0:02:47.040,0:02:53.200
+so she combines these into a single conditional 
+operation and creates a reusable pen.
+
+0:02:53.200,0:02:57.040
+She can now use this pen 
+to perform the next round.
+
+0:02:57.040,0:03:01.760
+To support progressive abstraction, 
+SketchMind provides three views:
+
+0:03:01.760,0:03:05.440
+concrete values, index, and parameters.
+
+0:03:05.440,0:03:10.640
+Alice noticed that things look very 
+similar from one step to the next.
+
+0:03:10.640,0:03:14.720
+She confirms this intuition by 
+switching to the parameter view,
+
+0:03:14.720,0:03:20.960
+where she thinks the same operation is 
+repeated three times for different values of i.
+
+0:03:20.960,0:03:23.840
+So she groups these steps together into a loop,
+
+0:03:23.840,0:03:27.520
+showing how the element 
+bubbles up during each pass.
+
+0:03:27.520,0:03:33.520
+When a user submits an incomplete solution, 
+instead of directly giving feedback,
+
+0:03:33.520,0:03:38.880
+SketchMind generates counterexamples so 
+the learner can see their own mistake.
+
+0:03:38.880,0:03:46.320
+When Alice clicks Done, the system generates 
+a counterexample by changing 2 to 0.
+
+0:03:46.320,0:03:50.640
+Replaying her sketches shows 
+that the array is not sorted.
+
+0:03:50.640,0:03:54.080
+Alice finds that her plan 
+only works on one example.
+
+0:03:54.080,0:03:57.120
+She is missing the last phase of the algorithm.
+
+0:03:57.120,0:03:59.920
+She then returns to the canvas.
+
+0:03:59.920,0:04:06.880
+Alice realizes that to sort an array of 4 
+numbers, BubbleSort requires 3 full passes.
+
+0:04:06.880,0:04:11.120
+Now, when she clicks down, 
+all examples are correct.
+
+0:04:11.120,0:04:15.760
+To show that the previous example 
+does not complete all required passes,
+
+0:04:15.760,0:04:19.200
+we generate a counterexample with two properties.
+
+0:04:19.200,0:04:23.600
+First, all of the student's 
+earlier steps remain valid.
+
+0:04:23.600,0:04:28.080
+Second, the new example requires 
+additional steps to finish.
+
+0:04:28.080,0:04:33.040
+This helps reduce student confusion 
+while still exposing the mistake.
+
+0:04:33.040,0:04:38.000
+In the paper, we use a logic solver 
+to construct this counterexample.
+
+0:04:38.000,0:04:42.400
+More generally, SketchMind can 
+be extended to other algorithms
+
+0:04:42.400,0:04:45.360
+by defining customized primitives.
+
+0:04:45.360,0:04:50.240
+We explore pancake sort by repeatedly 
+finding the maximum element, and then
+
+0:04:50.240,0:04:54.320
+flipping twice to move it to its final position.
+
+0:04:54.320,0:04:58.400
+For more details about sketchMind, 
+please refer to our paper.
