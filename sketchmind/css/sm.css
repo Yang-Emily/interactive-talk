@@ -62,7 +62,7 @@ section.slide.titlecard { padding: 0; }
 .titlecard h1 { position: absolute; left: 160px; right: 160px; top: 330px; text-align: center; font-size: 68px; line-height: 1.22; letter-spacing: -.01em; }
 .titlecard .people { position: absolute; left: 0; right: 0; top: 560px; display: flex; justify-content: center; gap: 40px; }
 .titlecard .p { text-align: center; width: 340px; white-space: nowrap; }
-.titlecard .p .nm { font-size: 32px; font-weight: 600; }
+.titlecard .p .nm { font-size: 32px; font-weight: 600; border-left: 0; padding-left: 0; }
 .titlecard .p .af { font-size: 24px; color: #555; margin: 4px 0 18px; }
 .titlecard .p img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; }
 .titlecard .lg-labs { position: absolute; right: 120px; bottom: 96px; height: 116px; }
