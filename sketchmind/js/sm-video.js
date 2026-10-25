@@ -1,10 +1,17 @@
 /* SketchMind talk — screen-recording demos cut from the UIST'26 preview video.
    <section data-demo="vid-trace" data-segs="0,2.7,5.7,7.5,10,11.5"> with a <video> inside.
    data-segs lists cut points in seconds; beat k plays from cut k-1 to cut k and pauses there.
-   Instant (going back, jumping) = seek straight to the cut. Captions in .cap[data-beat] follow along. */
+   Instant (going back, jumping) = seek straight to the cut. Captions in .cap[data-beat] follow along.
+   Optional: data-rate="2.25" overrides RATE for that slide; data-fast="t0 t1; …" plays those spans
+   (idle time, pen switches) FAST × the slide's rate. */
 (function () {
+  const RATE = 1.75;   // demos play faster than real time; slowed segments (sm-penflight data-slow) scale from this
+  const FAST = 4;
   function setup(sec) {
     const cuts = sec.dataset.segs.split(',').map(Number);
+    const rate = +sec.dataset.rate || RATE;
+    const fast = (sec.dataset.fast || '').split(';').map((x) => x.trim()).filter(Boolean).map((x) => x.split(/\s+/).map(Number));
+    const rateAt = (t) => (fast.some(([a, b]) => t >= a && t < b) ? rate * FAST : rate);
     const id = sec.dataset.demo;
     function caption(ctx, k) {
       const cumulative = sec.dataset.capmode === 'cumulative';   // earlier captions stay lit
@@ -21,14 +28,17 @@
     }
     function play(ctx, from, to) {
       stop(ctx); const v = ctx.v; v.pause();
-      v.currentTime = from; v.play().catch(() => {});
+      v.currentTime = from; v.playbackRate = rateAt(from); v.play().catch(() => {});
       // a timer plus timeupdate: rAF alone stalls when the window is in the background
-      const tick = () => { if (v.currentTime >= to - 0.04 || v.ended) { v.pause(); stop(ctx); if (Math.abs(v.currentTime - to) > 0.1) v.currentTime = to; } };
+      const tick = () => {
+        if (v.currentTime >= to - 0.04 || v.ended) { v.pause(); stop(ctx); if (Math.abs(v.currentTime - to) > 0.1) v.currentTime = to; return; }
+        const r = rateAt(v.currentTime); if (v.playbackRate !== r) v.playbackRate = r;
+      };
       ctx.raf = setInterval(tick, 30);
       ctx.onTU = tick; v.addEventListener('timeupdate', tick);
     }
     Deck.demo(id, {
-      reset(ctx) { ctx.v = sec.querySelector('video'); seek(ctx, cuts[0]); caption(ctx, 0); },
+      reset(ctx) { ctx.v = sec.querySelector('video'); ctx.v.defaultPlaybackRate = ctx.v.playbackRate = rate; seek(ctx, cuts[0]); caption(ctx, 0); },
       leave(ctx) { stop(ctx); ctx.v && ctx.v.pause(); },
       beats: cuts.slice(1).map((to, i) => (ctx, instant) => {
         caption(ctx, i + 1);

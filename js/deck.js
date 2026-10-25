@@ -94,11 +94,15 @@
     const prev = slides[cur];
     if (prev && prev !== slides[i]) {
       prev.classList.remove('active');
+      // the slide we leave stays underneath for a moment, so a deck can cross-fade (class "leaving")
+      prev.classList.add('leaving'); clearTimeout(prev._leaving);
+      prev._leaving = setTimeout(() => prev.classList.remove('leaving'), 450);
       const pd = slideDemo(prev);
       if (pd) pd.ctx.clearTimers();     // stop in-flight animations of the slide we leave
       if (pd && pd.leave) pd.leave(pd.ctx);
     }
     cur = i; beat = Math.min(n, totalBeats(slides[cur]));
+    slides[cur].classList.remove('leaving');
     slides[cur].classList.add('active');
     applyState(slides[cur], beat, true);
     const d = slideDemo(slides[cur]);
@@ -172,7 +176,7 @@
     };
   }
   function openSpeaker() {
-    window.open('speaker.html?v=96&inst=' + inst, 'speaker-' + encodeURIComponent(deckId), 'width=1100,height=760');
+    window.open('speaker.html?v=98&inst=' + inst, 'speaker-' + encodeURIComponent(deckId), 'width=1100,height=760');
     if (!t0) t0 = Date.now();
     setTimeout(sync, 300);
   }
@@ -198,6 +202,18 @@
   function boot() {
     slides = $$('section.slide:not([data-skip])');   // data-skip leaves a slide out of the talk without deleting it
     fit(); window.addEventListener('resize', fit);
+    // ?preview: a silent copy for the speaker window's thumbnail. It takes no keys and stays off the
+    // channel (so the speaker window never follows it); its parent moves it with {type:'deck-preview'}.
+    if (new URLSearchParams(location.search).has('preview')) {
+      // one click forward on the same slide plays that click's animation (pen strokes, video, swaps) as in the deck;
+      // anything else (back, jumps, a new slide) is set straight to that state
+      window.addEventListener('message', (ev) => {
+        const m = ev.data; if (!m || m.type !== 'deck-preview') return;
+        if (m.cur === cur && m.beat === beat + 1) next(); else if (m.cur !== cur || m.beat !== beat) goto(m.cur, m.beat);
+      });
+      goto(0, 0);
+      return;
+    }
     document.addEventListener('keydown', onKey);
     buildToc(); $('#hud').addEventListener('click', toggleToc);
     if ('BroadcastChannel' in window) {

@@ -4,24 +4,38 @@
 <meta charset="utf-8">
 <title>Speaker</title>
 <style>
+@font-face{font-family:"DIN Next";src:url("../fonts/DINNextW1G-Regular.otf") format("opentype");font-weight:400;font-style:normal;}
+@font-face{font-family:"DIN Next";src:url("../fonts/DINNextW1G-Italic.otf") format("opentype");font-weight:400;font-style:italic;}
+@font-face{font-family:"DIN Next";src:url("../fonts/DINNextW1G-Medium.otf") format("opentype");font-weight:500;font-style:normal;}
+@font-face{font-family:"DIN Next";src:url("../fonts/DINNextW1G-Bold.otf") format("opentype");font-weight:700;font-style:normal;}
   :root { --bg:#141414; --fg:#eee; --muted:#888; --accent:#ff7a2f; }
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:"DIN Next",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;}
   #wrap{display:grid;grid-template-columns:1fr 340px;grid-template-rows:auto 1fr;height:100%;gap:0}
   #top{grid-column:1/3;display:flex;align-items:baseline;gap:28px;padding:18px 28px;border-bottom:1px solid #2a2a2a}
   #title{font-size:26px;font-weight:600}
   #pos{color:var(--muted);font-variant-numeric:tabular-nums;font-size:18px}
   #beat{color:var(--accent);font-variant-numeric:tabular-nums;font-size:18px}
-  #notes{padding:28px 32px;font-size:26px;line-height:1.5;overflow:auto}
+  #main{display:flex;flex-direction:column;min-height:0}
+  #pv{position:relative;flex:none;width:640px;max-width:calc(100% - 64px);aspect-ratio:16/9;margin:20px 32px 0;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px #333}
+  #pv iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
+  #pv .rz{position:absolute;z-index:2}
+  #pv .rz.r{top:0;right:0;width:12px;height:100%;cursor:ew-resize}
+  #pv .rz.b{left:0;bottom:0;width:100%;height:12px;cursor:ns-resize}
+  #pv .rz.c{right:0;bottom:0;width:22px;height:22px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(0,0,0,.35) 50%);border-bottom-right-radius:10px}
+  #pv .rz:hover,#pv.drag .rz{background-color:rgba(255,122,47,.35)}
+  #pv.drag{box-shadow:0 0 0 2px var(--accent)}
+  #pvlbl{position:absolute;right:30px;bottom:8px;background:rgba(0,0,0,.65);color:#fff;font-size:13px;padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums}
+  #notes{flex:1;min-height:0;padding:22px 32px 28px;font-size:26px;line-height:1.5;overflow:auto}
   #notes p{margin:0 0 18px}
   #notes .b{display:inline-block;min-width:44px;color:var(--accent);font-variant-numeric:tabular-nums}
   #notes .b.now{background:var(--accent);color:#000;border-radius:6px;padding:0 8px}
-.delta{font-size:14px;color:#999;margin-top:4px;font-family:ui-monospace,monospace}
+.delta{font-size:14px;color:#999;margin-top:4px;font-family:"DIN Next",ui-monospace,monospace}
   .delta.ok{color:#2b8a3e}.delta.warn{color:#d9480f}.delta.late{color:#c92a2a;font-weight:700}
   #expected{font-size:44px;color:#666;font-variant-numeric:tabular-nums}
-  .ver{font-size:13px;color:#999;font-family:ui-monospace,monospace}
+  .ver{font-size:13px;color:#999;font-family:"DIN Next",ui-monospace,monospace}
   .ver b{color:#666;font-weight:600}
   #notes .cue{color:#cbb;font-style:italic}
-  #notes .dir{color:#8a8;font-size:.85em;font-family:ui-monospace,monospace}
+  #notes .dir{color:#8a8;font-size:.85em;font-family:"DIN Next",ui-monospace,monospace}
   #side{border-left:1px solid #2a2a2a;padding:24px;display:flex;flex-direction:column;gap:22px}
   #clock{font-size:64px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
   #elapsed{font-size:44px;color:var(--accent);font-variant-numeric:tabular-nums}
@@ -36,7 +50,10 @@
 <body>
 <div id="wrap">
   <div id="top"><span id="title">—</span><span id="pos"></span><span id="beat"></span></div>
-  <div id="notes"><p class="cue">Waiting for the deck… (press S in the deck window, or click ↻)</p></div>
+  <div id="main">
+    <div id="pv"><iframe id="pvf" src="index.html?preview=1" tabindex="-1" aria-hidden="true"></iframe><span id="pvlbl"></span><i class="rz r"></i><i class="rz b"></i><i class="rz c"></i></div>
+    <div id="notes"><p class="cue">Waiting for the deck… (press S in the deck window, or click ↻)</p></div>
+  </div>
   <div id="side">
     <div><div class="lbl">Clock</div><div id="clock">--:--</div></div>
     <div><div class="lbl">Elapsed</div><div id="elapsed">00:00</div><div id="budget" class="budget" hidden></div></div>
@@ -77,9 +94,39 @@
     tickExp();
     document.getElementById('ver').textContent = s.version || '(unknown)';
     const newSlide = s.cur !== lastCur; lastCur = s.cur;
+    showPreview(s.cur, s.beat, s.beats);
     renderNotes(s.notes, s.beat, newSlide);
   };
   let lastCur = -1;
+  // a live thumbnail of the deck, held at the same slide and click, so you can see how far the animation has gone
+  const pvf = document.getElementById('pvf');
+  let pvAt = null;
+  function showPreview(cur, beat, beats){
+    pvAt = { cur, beat };
+    document.getElementById('pvlbl').textContent = beats ? `click ${beat} / ${beats}` : 'no clicks';
+    pvf.contentWindow?.postMessage({ type: 'deck-preview', cur, beat }, '*');
+  }
+  pvf.addEventListener('load', () => cmd('hello'));   // once the copy is up, ask the deck where it is
+  function fitPreview(){ const box = document.getElementById('pv'); pvf.style.transform = `scale(${box.clientWidth / 1920})`; }
+  new ResizeObserver(fitPreview).observe(document.getElementById('pv'));
+  // drag the thumbnail's right or bottom edge (or corner) to resize it; the width is remembered
+  (function(){
+    const box = document.getElementById('pv');
+    try { const w = +localStorage.getItem('speaker:pvw'); if (w) box.style.width = w + 'px'; } catch (e) {}
+    box.querySelectorAll('.rz').forEach(h => h.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); h.setPointerCapture(e.pointerId); box.classList.add('drag');
+      const x0 = e.clientX, y0 = e.clientY, w0 = box.clientWidth, byHeight = h.classList.contains('b');
+      const move = (ev) => {
+        const w = byHeight ? w0 + (ev.clientY - y0) * 16 / 9 : w0 + (ev.clientX - x0);
+        box.style.width = Math.max(220, Math.round(w)) + 'px';
+      };
+      const up = () => {
+        box.classList.remove('drag'); h.removeEventListener('pointermove', move);
+        try { localStorage.setItem('speaker:pvw', box.clientWidth); } catch (e) {}
+      };
+      h.addEventListener('pointermove', move); h.addEventListener('pointerup', up, { once: true });
+    }));
+  })();
   function renderNotes(html, beat, newSlide){
     // Notes are plain lines. Lines starting with "[n]" are beat cues; the current one is highlighted.
     const tmp = document.createElement('div'); tmp.innerHTML = html;

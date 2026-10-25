@@ -43,14 +43,20 @@
   }
   document.addEventListener('deck:sync', (e) => renderHud(e.detail));
 
-  // play-once GIFs (img[data-once]) restart from the first frame each time their slide is entered
+  // play-once GIFs (img[data-once]) restart from the first frame each time they come into view:
+  // when their slide is entered, or when the click step (.beat) holding them is revealed
   let lastCur = -1;
   document.addEventListener('deck:sync', (e) => {
     const { cur } = e.detail;
-    if (cur === lastCur) return;
-    lastCur = cur;
     const sec = document.querySelectorAll('section.slide:not([data-skip])')[cur];
-    if (sec) sec.querySelectorAll('img[data-once]').forEach((img) => { img.src = img.dataset.once + '?t=' + Date.now(); });
+    if (!sec) return;
+    const entered = cur !== lastCur;
+    lastCur = cur;
+    sec.querySelectorAll('img[data-once]').forEach((img) => {
+      const step = img.closest('.beat'), shown = !step || step.classList.contains('on');
+      if (shown && (entered || !img.dataset.shown)) img.src = img.dataset.once + '?t=' + Date.now();
+      if (shown) img.dataset.shown = '1'; else delete img.dataset.shown;
+    });
   });
 
   function title(sec) {

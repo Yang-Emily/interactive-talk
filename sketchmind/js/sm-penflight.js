@@ -9,7 +9,7 @@
 /* Two more touch-ups on the same recordings:
    data-patches="t0 t1 x y w h fill; …"  cover a region while t0 ≤ time < t1 (hides pop-ups the app showed).
                                          fill = a colour, or an image in assets/ cut from a clean frame.
-   data-slow="t0 t1 rate; …"             play at `rate` while t0 ≤ time < t1 (lets a quick drag be followed). */
+   data-slow="t0 t1 rate; …"             play at `rate` × the demo speed while t0 ≤ time < t1 (lets a quick drag be followed). */
 (function () {
   const FLIGHT_MS = 1100, EASE = 'cubic-bezier(0.22, 0.9, 0.32, 1.1)';
   document.querySelectorAll('video[data-flights]').forEach((v) => {
@@ -65,7 +65,7 @@
       });
       if (slow.length) {
         const s = slow.find((x) => t >= x.t0 && t < x.t1);
-        const rate = s ? s.rate : 1;
+        const base = v.defaultPlaybackRate || 1, rate = s ? s.rate * base : base;
         if (v.playbackRate !== rate) v.playbackRate = rate;
       }
       requestAnimationFrame(touchUp);

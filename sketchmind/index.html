@@ -8,7 +8,7 @@
 <title>SketchMind · UIST 2026</title>
 <link rel="stylesheet" href="../css/deck.css?v=95">
 <link rel="stylesheet" href="../css/demos.css?v=91">
-<link rel="stylesheet" href="css/sm.css?v=154">
+<link rel="stylesheet" href="css/sm.css?v=231">
 </head>
 <body>
 <div id="stage">
@@ -26,29 +26,119 @@
     </div>
     <img class="lg-labs" src="assets/labs.png" alt="PEACH Lab · Systems and Formalisms Laboratory">
     <aside class="notes">
-      Hello everyone. I'm Yang Wu from ETH Zurich. I'd like to thank my advisors, Clément and April, for their guidance and support.
-      Today I'll present SketchMind: executable pen-based sketching for constructing sorting algorithms.
+      Hello everyone, I’m Yang Wu, a PhD student at ETH Zurich. Today, I’ll be presenting “SketchMind: Toward Executable Pen-Based Sketching for Constructing Sorting Algorithms,” joint work with my advisors, Clément Pit-Claudel and April Wang.
+      SketchMind lets learners sketch an algorithm with a pen, and every stroke runs.
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="vid-hand" data-segs="0,16.8,25.6,36.5,45.1,50.7" data-title="Tracing on paper" data-min="0.9">
+  <section class="slide withsec learning-context" data-title="Learning Bubble Sort" data-min="0.5">
     <div class="sec"><b>01</b>Motivation</div>
-    <h2>We often learn algorithms by tracing them on paper.</h2>
-    <div class="vidslide">
-      <div class="vwrap"><video src="media/hand-intro.mp4?v=fade-20261020" muted playsinline preload="auto"></video></div>
-      <div class="side">
-        <div class="who">Alice learns Bubble Sort</div>
+    <h2>How do students learn Bubble Sort today?</h2>
+    <div class="learning-methods">
+      <div class="learning-method">
+        <h3>Read tutorials <sup class="cite">[1]</sup></h3>
+        <div class="learning-visual learning-text-excerpt" role="img" aria-label="Textbook explanation of Bubble Sort">
+          <p>The bubble-sort algorithm on a sequence of integers. For each pass, the swaps performed and the sequence after the pass are shown.</p>
+          <ul>
+            <li>In the first pass, once the largest element is reached, it keeps on being swapped until it gets to the last position of the sequence.</li>
+            <li>In the second pass, …</li>
+            <li>In general, at the end of the <i>i</i>th pass, the right-most <i>i</i> elements of the sequence (that is, those at indices from <i>n</i>&nbsp;−&nbsp;1 down to <i>n</i>&nbsp;−&nbsp;<i>i</i>) are in final position.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="learning-method lm-anim">
+        <h3>Watch animations <sup class="cite">[2]</sup></h3>
+        <img class="learning-visual learning-sort-gif" src="assets/learning-bubble-sort.gif" data-once="assets/learning-bubble-sort.gif" alt="Animated Bubble Sort comparisons and swaps from the reference presentation.">
+      </div>
+      <div class="learning-method beat lm-chat">
+        <h3>Ask ChatGPT <sup class="cite">[3]</sup></h3>
+        <div class="learning-visual learning-chat" role="img" aria-label="A student asks ChatGPT when to swap in Bubble Sort">
+          <p class="q">When should Bubble Sort swap?</p>
+          <div class="a"><p>Compare each pair of neighbours, and swap them whenever the left one is larger than the right one.</p>
+<pre class="chat-code">def naive_bubble_sort(arr):
+  n = len(arr)
+  for i in range(n - 1):
+    for j in range(n - 1):
+      if arr[j] &gt; arr[j + 1]:
+        arr[j], arr[j + 1] = arr[j + 1], arr[j]</pre></div>
+        </div>
+      </div>
+      <div class="learning-method learning-by-hand beat">
+        <h3>Trace by hand</h3>
+        <img class="learning-visual" src="assets/learning-trace-start.png" alt="A handwritten Bubble Sort trace of 5, 2, 3, 4, 1: each comparison is underlined, swaps are marked with arcs, and the array is rewritten after each step.">
+      </div>
+    </div>
+    <div class="learning-media-credit" role="doc-footnote">[1] M. T. Goodrich, R. Tamassia, and D. M. Mount, <em>Data Structures and Algorithms in C++</em>, 2nd ed., Wiley, 2011. <span class="fn-anim"><br>[2] Bubble sort animation, Wikimedia Commons.</span><span class="fn-chat"><br>[3] OpenAI, ChatGPT, chatgpt.com.</span></div>
+    <aside class="notes">
+      Algorithms are an important part of computational thinking. So how do students learn an algorithm like Bubble Sort today?
+      As always, they can read a tutorial, or watch an animation.
+      [1] Nowadays, they can also just ask ChatGPT, like "when should Bubble Sort swap?", and get an answer right away.
+      [2] But along the way, the most natural and common thing they still do is grab a pen and trace it by hand.
+      So let's see what challenges they run into on paper.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="challenges" data-title="Tracing on paper" data-min="0.9">
+    <div class="sec"><b>01</b>Motivation</div>
+    <h2>Challenges of tracing on paper</h2>
+    <div class="challenge-columns">
+      <div class="challenge-column">
+        <h3><span class="challenge-number">Challenge 1:</span> Trace Explosion</h3>
+        <p class="challenge-desc">Redrawing every state is long and error&#8209;prone.</p>
+        <video class="challenge-trace-video" data-crop="112 16 420 446" src="media/trace-explosion-writing.mp4?v=3" aria-label="A continuous handwritten sorting trace starting with 5, 2, 3, 4, 1 grows longer on one sheet, with uneven underlines and swap arcs." muted playsinline preload="auto"></video>
+      </div>
+      <div class="challenge-column beat">
+        <h3><span class="challenge-number">Challenge 2:</span> The Abstraction Leap</h3>
+        <p class="challenge-desc">Hard to generalize steps into loops and conditions.</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="challenge-drawing" viewBox="123 7 432 526" role="img" aria-label="Handwritten trace with animated red annotations">
+<rect width="640" height="540" fill="white"/>
+<svg x="100" y="15" width="350" height="510" viewBox="210 80 220 340"><image href="assets/challenge-abstraction-fragment.jpg" width="640" height="540"/></svg>
+<g class="challenge-ink" fill="none" stroke="#cf3030" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M197 41 C237 13 342 20 367 58 C399 99 348 137 279 131 C205 132 167 91 197 41 C203 30 217 26 231 25"/>
+<path d="M201 233 C235 209 341 214 367 252 C393 292 348 329 278 321 C213 325 173 282 201 233"/>
+<path d="M185 392 C222 359 337 363 366 402 C397 446 344 475 272 472 C207 474 165 435 185 392"/>
+
+<path d="M473 206 C476 172 523 168 539 193 C558 224 515 237 507 254 C503 264 505 277 505 285" stroke-width="5"/>
+<path d="M505 310 L506 313" stroke-width="7"/>
+</g></svg>
+      </div>
+      <div class="challenge-column beat">
+        <h3><span class="challenge-number">Challenge 3:</span> Instance Overfitting</h3>
+        <p class="challenge-desc">One example hides counterexamples.</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="challenge-drawing" viewBox="21 12 555 506" role="img" aria-label="Handwritten trace with animated red annotations">
+<rect width="640" height="540" fill="white"/>
+<svg x="10" y="20" width="300" height="490" viewBox="210 80 220 340"><image href="assets/challenge-abstraction-fragment.jpg" width="640" height="540"/></svg>
+<g class="challenge-ink" fill="none" stroke="#cf3030" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+<!-- A new input in red pen, alongside the existing black trace. -->
+<path d="M350 124 Q338 122 331 126 L333 197 Q344 200 352 197"/>
+<path d="M371 128 L369 146 Q377 150 381 157 Q386 166 378 173 Q372 178 365 176 M370 143 L386 140"/>
+<path d="M405 129 Q399 140 399 151 Q405 156 419 151 M413 134 L412 177"/>
+<path d="M436 130 Q450 126 455 135 Q459 144 445 151 Q459 151 460 160 Q461 173 446 178"/>
+<path d="M479 139 Q482 128 491 132 Q505 136 497 148 L482 171 L503 174"/>
+<path d="M524 130 Q523 149 525 178"/>
+<path d="M549 127 Q557 124 566 126 L565 198 Q555 201 547 198"/>
+<!-- Two fresh steps for the new input, followed by more unwritten work. -->
+<path d="M8 3 Q2 14 2 25 Q8 30 22 25 M16 8 L15 51" transform="translate(367 228)"/>
+<path d="M4 2 L2 20 Q10 24 14 31 Q19 40 11 47 Q5 52 -2 50 M3 17 L19 14" transform="translate(400 228)"/>
+<path d="M2 4 Q16 0 21 9 Q25 18 11 25 Q25 25 26 34 Q27 47 12 52" transform="translate(435 228)"/>
+<path d="M0 13 Q3 2 12 6 Q26 10 18 22 L3 45 L24 48" transform="translate(479 228)"/>
+<path d="M6 4 Q5 23 7 52" transform="translate(518 228)"/>
+<path d="M8 3 Q2 14 2 25 Q8 30 22 25 M16 8 L15 51" transform="translate(367 326)"/>
+<path d="M2 4 Q16 0 21 9 Q25 18 11 25 Q25 25 26 34 Q27 47 12 52" transform="translate(400 326)"/>
+<path d="M4 2 L2 20 Q10 24 14 31 Q19 40 11 47 Q5 52 -2 50 M3 17 L19 14" transform="translate(435 326)"/>
+<path d="M0 13 Q3 2 12 6 Q26 10 18 22 L3 45 L24 48" transform="translate(479 326)"/>
+<path d="M6 4 Q5 23 7 52" transform="translate(518 326)"/>
+<g fill="#cf3030" stroke="none"><circle cx="450" cy="419" r="3"/><circle cx="450" cy="441" r="3"/><circle cx="450" cy="463" r="3"/></g>
+</g></svg>
       </div>
     </div>
     <aside class="notes">
-      When we learn an algorithm, we often trace it by hand. Here, Alice is learning Bubble Sort.
-      [1] She starts with 5, 2, 3, 4, 1. She compares 5 and 2, swaps them, then compares 5 and 3, and 5 and 4.
-      (pause) The trace quickly grows longer.
-      Here comes the first challenge: trace explosion.
-      [2] She moves to a new page and copies the current state. But here, she missed a swap, and continues without noticing.
-      [3] To go faster, she starts skipping steps, doing parts of it in her head.
-      [4] Looking back, it's hard to reconstruct the full process. It's the same compare and swap again and again, but nothing on the page shows that structure. That is the second challenge: the abstraction leap.
-      [5] And it's hard to reuse this for other inputs. What she has is a messy record of one specific example. The third challenge is overfitting to one example.
+      Here's a student tracing Bubble Sort on paper.
+      [1] As the trace grows, it gets really long. That's trace explosion: it's tedious, and errors easily hide in it.
+      [2] Then, when they look back at the trace, they face the abstraction leap.
+      [3] It's hard to see the structure behind these steps, like which part is a loop and which is an if-else.
+      [4] And once they finish one example, they feel pretty good about it. That's instance overfitting.
+      [5] But when a new example comes along, does their plan still work? They have to trace it all over again from scratch.
     </aside>
   </section>
 
@@ -98,7 +188,7 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="rec-0-5" data-segs="1.19,6.8,9.57,14.69,20.69,29.17,34.93" data-title="Live · Executable tracing" data-min="0.55">
+  <section class="slide withsec" data-demo="rec-0-5" data-segs="1.19,6.8,9.57,14.69,20.69,29.17,34.93" data-rate="2.25" data-fast="5.8 7.4; 8.2 11.3; 13.5 16.4; 19.6 23.0; 28.8 30.95; 34.0 34.93" data-title="Live · Executable tracing" data-min="0.55">
     <div class="sec"><b>a</b>Executable tracing</div>
     <h2>Demo: Alice traces Bubble Sort on [3, 1, 7, 4].</h2>
     <div class="vidslide wide">
@@ -270,121 +360,132 @@
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="concept-d" data-build="4" data-title="Counterexample requirements" data-hud="Counterexample requirements" data-min="0.7">
+  <section class="slide withsec" data-demo="concept-d" data-build="3" data-title="Counterexample requirements" data-hud="Counterexample requirements" data-min="0.7">
     <div class="sec"><b>d</b>Counterexamples</div>
     <h2>What makes a useful counterexample?</h2>
     <div class="cx cxd2 n4">
-      <div class="band band0 ci" data-in="2"></div><div class="band band1 ci" data-in="3"></div><div class="band band2 ci" data-in="4"></div>
+      <div class="band band0 ci" data-in="1"></div><div class="band band1 ci" data-in="2"></div><div class="band band2 ci" data-in="3"></div>
       <div class="hdr c1" style="grid-row:1"><div class="thumb"><span class="hw sm drawn" data-digits="3174"></span><span class="badge ok">✓</span></div>her example</div>
-      <div class="hdr c2 ci" style="grid-row:1" data-in="1"><div class="thumb ce"><span class="digs"><span class="hw sm drawn" data-digits="317"></span><span class="hw sm bad" data-digits="2" data-in="1" data-delay="500"></span></span><span class="badge no">!</span></div>counterexample</div>
+      <div class="hdr c2" style="grid-row:1"><div class="thumb ce"><span class="digs"><span class="hw sm drawn" data-digits="317"></span><span class="hw sm bad drawn" data-digits="2"></span></span><span class="badge no">!</span></div>counterexample</div>
       <div class="card data c1" style="grid-row:2">[3, 1, 7, 4]</div>
       <div class="card cas c1" style="grid-row:3">compare_and_swap(3, 1) <span class="tf t">True</span></div>
       <div class="card cas c1" style="grid-row:4">compare_and_swap(3, 7) <span class="tf f">False</span></div>
       <div class="card cas c1" style="grid-row:5">compare_and_swap(7, 4) <span class="tf t">True</span></div>
       <div class="card res c1" style="grid-row:6">[1, 3, 4, 7] <span class="tag" style="color:#2b8a3e;background:#eefaf1">sorted</span></div>
-      <div class="card data c2 ci" style="grid-row:2" data-in="1" data-delay="150">[3, 1, 7, <b class="chg">2</b>]</div>
-      <div class="card cas c2 ci" style="grid-row:3" data-in="1" data-delay="300">compare_and_swap(3, 1) <span class="tf t">True</span></div>
-      <div class="card cas c2 ci" style="grid-row:4" data-in="1" data-delay="400">compare_and_swap(3, 7) <span class="tf f">False</span></div>
-      <div class="card cas c2 ci" style="grid-row:5" data-in="1" data-delay="500"><span>compare_and_swap(7, <b class="chg">2</b>)</span> <span class="tf t">True</span></div>
-      <div class="card res c2 ci" style="grid-row:6" data-in="1" data-delay="650"><span>[1, 3, <b class="chg">2</b>, 7]</span> <span class="tag" style="color:var(--bad);background:#fde8e8">not sorted</span></div>
-      <div class="note n0 ci" data-in="2" data-delay="300"><span class="nn">1.</span> The change is minimal.<small>fewest numbers changed, then smaller changes, then smaller values</small></div>
-      <div class="note n1 ci" data-in="3" data-delay="300"><span class="nn">2.</span> Her previous steps stay valid.</div>
-      <div class="note n2 ci" data-in="4" data-delay="300"><span class="nn">3.</span> The new input needs more steps.</div>
+      <div class="card data c2" style="grid-row:2">[3, 1, 7, <b class="chg">2</b>]</div>
+      <div class="card cas c2" style="grid-row:3">compare_and_swap(3, 1) <span class="tf t">True</span></div>
+      <div class="card cas c2" style="grid-row:4">compare_and_swap(3, 7) <span class="tf f">False</span></div>
+      <div class="card cas c2" style="grid-row:5"><span>compare_and_swap(7, <b class="chg">2</b>)</span> <span class="tf t">True</span></div>
+      <div class="card res c2" style="grid-row:6"><span>[1, 3, <b class="chg">2</b>, 7]</span> <span class="tag" style="color:var(--bad);background:#fde8e8">not sorted</span></div>
+      <div class="note n0 ci" data-in="1" data-delay="300"><span class="nn">1.</span> The change is minimal.</div>
+      <div class="note n1 ci" data-in="2" data-delay="300"><span class="nn">2.</span> Her previous steps stay valid.</div>
+      <div class="note n2 ci" data-in="3" data-delay="300"><span class="nn">3.</span> The new input needs more steps.</div>
     </div>
     <aside class="notes">
-      Let's look more closely at that counterexample. What makes it useful? On the left is her example: her three steps sort it.
-      [1] On the right is SketchMind's counterexample, with the 4 changed to a 2.
-      [2] We want to help learners see where they went wrong without confusing them. First, we want the change to be minimal: as few numbers as possible, then smaller changes, then smaller values.
-      [3] Second, all of her earlier steps remain valid.
-      [4] Third, the new example needs additional steps to finish.
+      Let's look more closely at that counterexample. What makes it useful? We want to help learners see where they went wrong without confusing them.
+      [1] First, we want the change to be minimal.
+      [2] Second, all of her earlier steps remain valid.
+      [3] Third, the new example needs additional steps to finish.
     </aside>
   </section>
 
-  <section class="slide withsec" data-demo="concept-smt" data-build="16" data-title="How: SMT search" data-hud="Counterexample generation" data-min="0.8">
+  <section class="slide withsec" data-demo="concept-smt1" data-build="2" data-title="How: steps to facts" data-hud="Counterexample generation" data-min="0.4">
     <div class="sec"><b>d</b>Counterexamples</div>
-    <h2>How SketchMind finds the counterexample.</h2>
-    <div class="cx smt5">
-      <div class="pnl p1">
-        <div class="lb"><i>1</i>Facts from Bubble Sort <small>a0…a3 = [3, 1, 7, 4]</small></div>
-        <div class="al">
-          <div class="r hd"><span></span><span class="hh">her plan</span><span>Bubble Sort (naive)</span><span>fact</span></div>
-          <div class="r p0"><span class="ps">pass 1</span><span class="her">compare_and_swap(0,1)</span><span class="gt ci" data-in="1">compare_and_swap(0,1)</span><span class="fc ci" data-in="2" data-delay="0">a0 &gt; a1</span></div>
-          <div class="r"><span class="ps"></span><span class="her">compare_and_swap(1,2)</span><span class="gt ci" data-in="1">compare_and_swap(1,2)</span><span class="fc ci" data-in="2" data-delay="400">a0 ≤ a2</span></div>
-          <div class="r"><span class="ps"></span><span class="her">compare_and_swap(2,3)</span><span class="gt ci" data-in="1">compare_and_swap(2,3)</span><span class="fc ci" data-in="2" data-delay="800">a2 &gt; a3</span></div>
-          <div class="r p0 miss" data-add="1 need"><span class="ps">pass 2</span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="gt ci" data-in="1">compare_and_swap(0,1)</span><span class="fc ci" data-in="2" data-delay="1200">a1 ≤ a0</span></div>
-          <div class="r miss" data-add="1 need;9 hot"><span class="ps"></span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="gt ci" data-in="1">compare_and_swap(1,2)</span><span class="fc ci" data-in="2" data-delay="1600">a0 ≤ a3</span></div>
-          <div class="r p0 miss" data-add="1 need"><span class="ps">pass 3</span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="gt ci" data-in="1">compare_and_swap(0,1)</span><span class="fc ci" data-in="2" data-delay="2000">a1 ≤ a0</span></div>
-        </div>
+    <h2>Step 1: turn every Bubble Sort step into a fact.</h2>
+    <div class="cx sg">
+      <div class="reqs" style="visibility:hidden" aria-hidden="true"><span class="rq q1"><b>1.</b> The change is minimal.</span><span class="rq q2"><b>2.</b> Her previous steps stay valid.</span><span class="rq q3"><b>3.</b> The new input needs more steps.</span></div>
+      <div class="arrx"><span class="cells"><span class="br"><b>[</b><i>&nbsp;</i></span><span><b>3</b><i>a0</i></span><span><b>1</b><i>a1</i></span><span><b>7</b><i>a2</i></span><span><b>4</b><i>a3</i></span><span class="br"><b>]</b><i>&nbsp;</i></span></span></div>
+      <div class="sgt s1">
+        <div class="band hb"></div>
+        <div class="r hd"><span></span><span class="her">her plan</span><span class="ci" data-in="1">reference plan</span><span class="ci" data-in="2">fact</span></div>
+        <div class="r"><span class="ps">pass 1</span><span class="her">C&amp;S(a0, a1) <small>3 vs 1</small></span><span class="ci" data-in="1">C&amp;S(a0, a1)</span><span class="fc ci" data-in="2" data-delay="0">a0 &gt; a1</span></div>
+        <div class="r"><span class="ps"></span><span class="her">C&amp;S(a1, a2) <small>3 vs 7</small></span><span class="ci" data-in="1">C&amp;S(a1, a2)</span><span class="fc ci" data-in="2" data-delay="300">a0 ≤ a2</span></div>
+        <div class="r"><span class="ps"></span><span class="her">C&amp;S(a2, a3) <small>7 vs 4</small></span><span class="ci" data-in="1">C&amp;S(a2, a3)</span><span class="fc ci" data-in="2" data-delay="600">a2 &gt; a3</span></div>
+        <div class="r sep" data-add="1 need"><span class="ps">pass 2</span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="ci" data-in="1">C&amp;S(a0, a1)</span><span class="fc ci" data-in="2" data-delay="900">a1 ≤ a0</span></div>
+        <div class="r" data-add="1 need"><span class="ps"></span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="ci" data-in="1">C&amp;S(a1, a2)</span><span class="fc ci" data-in="2" data-delay="1200">a0 ≤ a3</span></div>
+        <div class="r sep" data-add="1 need"><span class="ps">pass 3</span><span class="her none"><i class="d">—</i><i class="m">missing</i></span><span class="ci" data-in="1">C&amp;S(a0, a1)</span><span class="fc ci" data-in="2" data-delay="1500">a1 ≤ a0</span></div>
       </div>
-      <div class="links al">
-        <div class="r hd"></div>
-        <div class="r p0"><span class="ci" data-in="3">→</span></div>
-        <div class="r"><span class="ci" data-in="3">→</span></div>
-        <div class="r"><span class="ci" data-in="3">→</span></div>
-        <div class="r p0 miss"><span class="ci" data-in="4">→</span></div>
-        <div class="r miss" data-add="9 hot"><span class="ci" data-in="5">→</span></div>
-        <div class="r p0 miss"><span class="ci" data-in="6">→</span></div>
+      <p class="csnote">Note: <b>C&amp;S</b> = <b>compare_and_swap</b></p>
+    </div>
+    <aside class="notes">
+      We build those conditions in three steps.
+      [1] First, we formalize every Bubble Sort step into a fact. We compare her plan with the reference plan, naive Bubble Sort, and see that her plan misses passes 2 and 3.
+      [2] Each step of the reference plan gives a fact about the input values: whether that step swaps or not. On her example, all of these facts hold, so missing passes 2 and 3 does not change her result.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="concept-smt2" data-build="5" data-title="How: keep, flip, minimize" data-hud="Counterexample generation" data-min="0.5">
+    <div class="sec"><b>d</b>Counterexamples</div>
+    <h2>Step 2: keep her steps, flip one she missed, change little.</h2>
+    <div class="cx sg">
+      <div class="reqs"><span class="rq q1" data-add="5 lit"><b>1.</b> The change is minimal.</span><span class="rq q2" data-add="1 lit"><b>2.</b> Her previous steps stay valid.</span><span class="rq q3" data-add="4 lit"><b>3.</b> The new input needs more steps.</span></div>
+      <div class="arrx"><span class="cells"><span class="br"><b>[</b><i>&nbsp;</i></span><span><b>3</b><i>a0</i></span><span><b>1</b><i>a1</i></span><span><b>7</b><i>a2</i></span><span><b>4</b><i>a3</i></span><span class="br"><b>]</b><i>&nbsp;</i></span></span></div>
+      <div class="sgt s2">
+        <div class="band kb ci" data-in="1"></div>
+        <div class="r hd"><span></span><span>fact</span><span></span><span class="ci" data-in="1">new condition</span></div>
+        <div class="r"><span class="ps">pass 1</span><span class="fc">a0 &gt; a1</span><span class="to ci" data-in="1">→</span><span class="kf ci" data-in="1"><span class="kp">keep</span><code>a0 &gt; a1</code></span></div>
+        <div class="r"><span class="ps"></span><span class="fc">a0 ≤ a2</span><span class="to ci" data-in="1">→</span><span class="kf ci" data-in="1"><span class="kp">keep</span><code>a0 ≤ a2</code></span></div>
+        <div class="r"><span class="ps"></span><span class="fc">a2 &gt; a3</span><span class="to ci" data-in="1">→</span><span class="kf ci" data-in="1"><span class="kp">keep</span><code>a2 &gt; a3</code></span></div>
+        <div class="r sep"><span class="ps need">pass 2</span><span class="fc">a1 ≤ a0</span><span class="to ci" data-in="2">→</span><span class="kf ci" data-in="2"><span class="fp">flip</span><code class="fn" data-add="3 x">a1 &gt; a0</code><span class="vd bad ci" data-in="3">✗ clashes with a0 &gt; a1</span></span></div>
+        <div class="r" data-add="4 hot"><span class="ps"></span><span class="fc">a0 ≤ a3</span><span class="to ci" data-in="2">→</span><span class="kf ci" data-in="2"><span class="fp">flip</span><code class="fn good">a0 &gt; a3</code><span class="vd good ci" data-in="4">✓ Bubble Sort must swap here, in pass 2</span></span></div>
+        <div class="r sep"><span class="ps need">pass 3</span><span class="fc">a1 ≤ a0</span><span class="to ci" data-in="2">→</span><span class="kf ci" data-in="2"><span class="fp">flip</span><code class="fn" data-add="3 x">a1 &gt; a0</code><span class="vd bad ci" data-in="3" data-delay="200">✗ clashes with a0 &gt; a1</span></span></div>
       </div>
-      <div class="pnl p2 ci" data-in="3">
-        <div class="lb"><i>2</i>Keep or flip</div>
-        <div class="al">
-          <div class="r hd"><span></span></div>
-          <div class="r p0"><span class="kf ci" data-in="3"><span class="kp">keep</span><code class="kc">a0 &gt; a1</code></span></div>
-          <div class="r"><span class="kf ci" data-in="3"><span class="kp">keep</span><code class="kc">a0 ≤ a2</code></span></div>
-          <div class="r"><span class="kf ci" data-in="3"><span class="kp">keep</span><code class="kc">a2 &gt; a3</code></span></div>
-          <div class="r p0 miss"><span class="kf ci" data-in="4"><span class="fp">flip</span><code class="fo">a1 ≤ a0</code><span class="to">→</span><code class="fn bad" data-add="7 x">a1 &gt; a0</code></span><span class="vd bad ci" data-in="7">✗ clashes with a0 &gt; a1</span></div>
-          <div class="r miss" data-add="9 hot"><span class="kf ci" data-in="5"><span class="fp">flip</span><code class="fo">a0 ≤ a3</code><span class="to">→</span><code class="fn good">a0 &gt; a3</code></span><span class="vd good ci" data-in="9">✓ Bubble Sort must swap here, in pass 2</span></div>
-          <div class="r p0 miss"><span class="kf ci" data-in="6"><span class="fp">flip</span><code class="fo">a1 ≤ a0</code><span class="to">→</span><code class="fn bad" data-add="8 x">a1 &gt; a0</code></span><span class="vd bad ci" data-in="8">✗ clashes with a0 &gt; a1</span></div>
-        </div>
+      <div class="mn ci" data-in="5"><span class="k">minimize</span>
+        <div class="ml"><span>1. fewest numbers changed</span><code>(+ (ite (= a0 3) 0 1) …)</code></div>
+        <div class="ml"><span>2. then smaller changes</span><code>(+ (abs (- a0 3)) …)</code></div>
+        <div class="ml"><span>3. then smaller values</span><code>(+ a0 a1 a2 a3)</code></div>
       </div>
-      <div class="pnl p3 solver ci" data-in="10">
-        <div class="lb"><i>3</i>Ask Z3 <small>SMT-LIB</small></div>
-        <div class="z3">
-          <div class="code">
-            <div class="ln dc ci" data-in="10"><code>(declare-const a0 a1 a2 a3 Int)</code><span class="cm">unknowns</span></div>
-            <div class="ln bd ci" data-in="10"><code>(assert (&lt;= 1 a0 99)) … (distinct a0 a1 a2 a3)</code><span class="cm">valid, distinct</span></div>
-            <div class="ln kp ci" data-in="10"><code>(assert (&gt; a0 a1))</code><span class="cm">keep · pass 1</span></div>
-            <div class="ln kp ci" data-in="10"><code>(assert (&lt;= a0 a2))</code><span class="cm"></span></div>
-            <div class="ln kp ci" data-in="10"><code>(assert (&gt; a2 a3))</code><span class="cm"></span></div>
-            <div class="ln fp ci" data-in="10"><code>(assert (&gt; a0 a3))</code><span class="cm">flip · pass 2</span></div>
-            <div class="ln ob ch ci" data-in="11"><code>(minimize (+ (ite (= a0 3) 0 1) …))</code><span class="cm">fewest changed values</span></div>
-            <div class="ln ob l1 ci" data-in="11"><code>(minimize (+ (abs (- a0 3)) …))</code><span class="cm">then L1 distance</span></div>
-            <div class="ln ob sm ci" data-in="11"><code>(minimize (+ a0 a1 a2 a3))</code><span class="cm">then smaller sum</span></div>
-            <div class="ln rn ci" data-in="12"><code>(check-sat) (get-model)</code><span class="cm">run</span></div>
+    </div>
+    <aside class="notes">
+      Second, we decide which facts to keep and which one to flip.
+      [1] Her pass 1 is correct, so we keep those three facts. This is our second requirement: her previous steps stay valid.
+      [2] For the steps she skipped, we try flipping one fact at a time, so that Bubble Sort has to do something she didn't.
+      [3] We drop the flips that conflict with her earlier steps.
+      [4] The one left forces a swap in pass 2, a step she is missing. That is our third requirement: the new input needs more steps.
+      [5] Finally, our first requirement: the change should be minimal. We ask for the fewest numbers changed, then smaller changes, then smaller values.
+    </aside>
+  </section>
+
+  <section class="slide withsec" data-demo="concept-smt3" data-build="4" data-title="How: Z3 solves it" data-hud="Counterexample generation" data-min="0.6">
+    <div class="sec"><b>d</b>Counterexamples</div>
+    <h2>Step 3: Z3 searches for the smallest change.</h2>
+    <div class="cx sg">
+      <div class="reqs"><span class="rq q1 lit"><b>1.</b> The change is minimal.</span><span class="rq q2 lit"><b>2.</b> Her previous steps stay valid.</span><span class="rq q3 lit"><b>3.</b> The new input needs more steps.</span></div>
+      <div class="sv3">
+        <div class="ins">
+          <div class="bk b2"><span class="k">2 · keep</span><code>a0 &gt; a1</code><code>a0 ≤ a2</code><code>a2 &gt; a3</code></div>
+          <div class="bk b3"><span class="k">3 · flip</span><code>a0 &gt; a3</code></div>
+          <div class="bk b1"><span class="k">1 · minimize, in order</span>
+            <div class="f" data-add="1 hot"><code>(+ (ite (= a0 3) 0 1) …)</code><small>fewest numbers changed</small></div>
+            <div class="f" data-add="2 hot"><code>(+ (abs (- a0 3)) …)</code><small>then smaller changes</small></div>
+            <div class="f" data-add="3 hot"><code>(+ a0 a1 a2 a3)</code><small>then smaller values</small></div>
           </div>
-          <div class="run">
-            <div class="rh ci" data-in="13"><em class="ch">fewest changes</em> → <em class="l1">L1 distance</em> → <em class="sm">sum</em></div>
-            <div class="rr ci" data-in="13"><span class="dd">1 change</span><span class="cd win" data-add="15 pick">[3,1,7,2]<small>L1 2</small><em>Σ13</em></span><span class="cd" data-add="15 lose">[5,1,7,4]<small>L1 2</small><em>Σ17</em></span><span class="cd" data-add="14 lose">[6,1,7,4]<small>L1 3</small><em>Σ18</em></span></div>
-            <div class="tie ci" data-in="14">two are equally close: <em class="l1">L1 distance</em> 2</div>
-            <div class="sat ci" data-in="15"><b>sat</b><span>still equal → the <em class="sm">smaller sum</em> wins</span></div>
-            <div class="chk ci" data-in="16"><span class="lbl">her plan on it</span>
-              <div data-add="16 t1" data-adelay="400"><div data-add="16 t2" data-adelay="1000"><div data-add="16 t3" data-adelay="1700"><div data-add="16 t4" data-adelay="2400"><div data-add="16 t5" data-adelay="3000"><div class="play" data-add="16 t6" data-adelay="3800">
-                <div class="arr4"><span class="hl"></span><span class="c v3">3</span><span class="c v1">1</span><span class="c v7">7</span><span class="c v2">2</span></div>
-                <span class="fin"><span class="tag no">not sorted</span> → counterexample</span>
-              </div></div></div></div></div></div>
-            </div>
+        </div>
+        <i class="ar">→</i>
+        <div class="zbox"><b>Z3</b><small>constraint solver</small></div>
+        <i class="ar">→</i>
+        <div class="srch">
+          <div class="cl ci" data-in="1" data-delay="800">
+            <div class="cr" data-add="3 win" data-adelay="1600"><span class="cd">[3, 1, 7, <b>2</b>]</span><em class="ci" data-in="2" data-delay="800">change 2</em><em class="ci" data-in="3" data-delay="800">sum 13 ✓</em></div>
+            <div class="cr" data-add="3 lose" data-adelay="1600"><span class="cd">[<b>5</b>, 1, 7, 4]</span><em class="ci" data-in="2" data-delay="800">change 2</em><em class="ci" data-in="3" data-delay="800">sum 17</em></div>
+            <div class="cr" data-add="2 lose" data-adelay="1600"><span class="cd">[<b>6</b>, 1, 7, 4]</span><em class="ci" data-in="2" data-delay="800">change 3</em></div>
+          </div>
+          <div class="pos1 ci" data-in="1" data-delay="1100">three candidates: 1 position changed</div>
+          <div class="out ci" data-in="4" data-delay="800"><span class="k">her plan on it</span>
+            <div data-add="4 t1" data-adelay="1700"><div data-add="4 t2" data-adelay="2300"><div data-add="4 t3" data-adelay="3000"><div data-add="4 t4" data-adelay="3700"><div data-add="4 t5" data-adelay="4300"><div class="play" data-add="4 t6" data-adelay="5100">
+              <div class="thumb ce run"><span class="digs"><span class="hw sm drawn x3" data-digits="3"></span><span class="hw sm drawn x1" data-digits="1"></span><span class="hw sm drawn x7" data-digits="7"></span><span class="hw sm bad x2" data-digits="2" data-in="4" data-delay="1100"></span></span><span class="badge no">!</span></div>
+              <span class="fin"><span class="tag no">not sorted</span></span>
+            </div></div></div></div></div></div>
           </div>
         </div>
       </div>
     </div>
     <aside class="notes">
-      How does SketchMind find it? We use an SMT solver, which finds numbers that satisfy a list of conditions.
-      [1] Next to her plan, we run the standard Bubble Sort. She is missing passes 2 and 3.
-      [2] Each step gives a condition.
-      [3] Her correct pass 1 stays exactly as it is.
-      [4] For the steps she skips, we flip one condition at a time…
-      [5] …
-      [6] …to trigger a step she skipped.
-      [7] Two of these flips conflict with her steps: this one…
-      [8] …and this one.
-      [9] Pass 2 is what she is missing: now Bubble Sort must swap in pass 2.
-      [10] We give the solver these conditions…
-      [11] …and set three goals for a minimal change: fewest numbers changed, then smaller changes, then smaller values.
-      [12] Then we run the model.
-      [13] It finds that changing one number gives three candidates.
-      [14] But smaller changes leave two.
-      [15] Then smaller values pick 3, 1, 7, 2.
-      [16] Her steps on it: the array is not sorted.
+      Third, we give these three blocks to Z3, a constraint solver. Think of it as a calculator for conditions: it finds numbers that satisfy all of them, and among those, the best one by our minimal goals.
+      [1] It first finds three candidates, each changing only one position.
+      [2] Then it keeps the smallest change: a change of 2.
+      [3] Finally, it picks the smallest values: 3, 1, 7, 2.
+      [4] Now we have found a counterexample: her plan leaves it not sorted.
     </aside>
   </section>
 
@@ -536,7 +637,7 @@
     <aside class="notes">
       Instructors saw three ways to use it. In class, to encourage active learning: students come to the front, draw together, and check the results live.
       [1] After a lecture, as formative feedback: students check their own steps and find their errors.
-      [2] As homework, to support conceptual change: learners gain more by doing than by watching, but without extra tasks, many may stop after one success.
+      [2] As homework, to support conceptual change: learners gain more by doing than by watching.
     </aside>
   </section>
 
@@ -566,10 +667,10 @@
     </div>
     <p class="dq2 beat">Which counterexample makes her missing step easiest to see?</p>
     <aside class="notes">
-      While building SketchMind, we came across some interesting questions. First: is the nearest counterexample the clearest one?
-      Her one pass sorts 3, 1, 7, 4. We look for the smallest change, but "smallest" can be defined in different ways. SketchMind first changes as few positions as possible, then keeps each change small, then prefers smaller numbers.
-      [1] Another option keeps her numbers and only changes their order: swap the positions of 3 and 4.
-      [2] We could also keep all her numbers and add a new one at the end.
+      While building SketchMind, we came across some interesting questions. Is the nearest counterexample the clearest one?
+      We look for the smallest change, but "smallest" can be defined in different ways.
+      [1] Another option keeps the numbers and only changes their order: swap the positions of 3 and 4.
+      [2] We could also keep all the numbers and positions, but add a new one at the end.
       [3] Which one makes her missing step easiest to see? We think this is worth studying, and a direction to explore.
     </aside>
   </section>
@@ -588,16 +689,19 @@
     </div>
     <aside class="notes">
       In the study, we went from Bubble Sort to Pancake Sort. Can this generalize to more complex algorithms?
-      For Dijkstra, we would need new primitives like extract min, mark visited, and relax edge, plus new solver conditions.
+      For Dijkstra, we would need new primitives like mark visited, plus new solver conditions.
     </aside>
   </section>
 
   <section class="slide withsec disc2" data-title="Discussion · visual language" data-hud="Learners' visual language" data-min="0.6">
     <div class="sec"><b>06</b>Discussion</div>
     <h2>Learners already have a visual language.</h2>
-    <p class="dlead">On paper, learners drew bubbles sized by value, boxes, and circles. Can SketchMind support this expressiveness, beyond handwritten numbers?</p>
+    <p class="dlead">In our study, learners invented their own notations. One learner drew each number as a bubble whose <b>size is its value</b>, and let the big ones rise. Can SketchMind support this, beyond handwritten numbers?</p>
+    <div class="abrow">
+    <figure class="abpaper"><img src="assets/pen-paper/e-bubbles.jpg" alt="A learner's paper sketch of Bubble Sort: three columns of circles whose sizes stand for the values, with the larger circles bubbling to the top pass by pass."></figure>
+    <div class="abcol">
     <div class="abx">
-      <div class="abbar"><span class="abl">Primitives</span><span class="abpen on">✎ Abstract <i>beta</i></span><span class="exo">Example <b>[3, 1, 4, 2]</b></span></div>
+      <div class="abbar"><span class="abl">Primitives</span><span class="abpen on">✎ Abstract</span><span class="exo">Example <b>[3, 1, 4, 2]</b></span></div>
       <svg class="abs" viewBox="160 125 1250 315" role="img" aria-label="Four bubbles drawn with the Abstract pen; each is given a value (3, 1, 4, 2) and together they become the array [3, 1, 4, 2]">
 <g class="ab-b" style="--t:0.5s">
   <path class="ink" pathLength="1" d="M250.9 268.1 L259.9 262.2 L269.7 257.5 L280.2 254.2 L291.1 253.1 L302.1 254.1 L312.5 257.0 L322.1 261.1 L331.1 265.6 L339.9 270.1 L349.0 274.5 L358.3 279.3 L367.5 285.2 L375.6 292.6 L381.7 301.7 L385.2 311.9 L385.9 322.5 L384.3 333.0 L381.2 342.9 L377.3 352.3 L373.1 361.3 L368.3 370.0 L362.6 378.2 L355.7 385.7 L347.6 392.0 L338.4 396.9 L328.7 400.5 L318.7 403.2 L308.5 405.5 L297.9 407.3 L286.9 408.4 L275.6 408.1 L264.4 405.7 L254.2 400.9 L245.7 393.7 L239.2 384.9 L234.6 375.4 L231.3 365.9 L228.4 356.7 L225.4 347.8 L222.5 338.7 L220.0 329.1 L218.9 319.1 L219.7 308.9 L222.9 299.1 L228.1 290.0 L234.8 281.9 L242.5 274.6 L250.9 268.1 L260.7 263.6 L270.9 260.4 L281.4 258.8 L291.9 259.3 L301.9 261.8"/><path class="ink hl" pathLength="1" d="M256.6 327.1 Q256.6 287.6 290.5 282.0"/>
@@ -622,10 +726,13 @@
 
       </svg>
     </div>
-    <p class="dq2">We are developing an Abstract pen so they can keep that style: draw anything, then give it a value.</p>
+    <p class="dq2 under"><span class="wip">Ongoing</span> An Abstract pen: draw any shape, such as a bubble, then give it a value.</p>
+    </div>
+    </div>
     <aside class="notes">
-      In the pen-and-paper session, we observed that learners already have their own visual language. Can SketchMind support that?
-      In our beta, we are developing an Abstract pen: you draw any shape and pick its value.
+      In the pen-and-paper session, we saw that learners already have their own visual language, such as showing sorting as bubbles rising to the top.
+      So since this April, we have been working on an Abstract pen.
+      With it, you draw any shape, like a bubble, and give it a value. Together, the shapes become an array.
     </aside>
   </section>
 
@@ -777,11 +884,13 @@
   <div id="toc"></div>
 </div>
 
-<script src="../js/deck.js?v=96"></script>
-<script src="js/sm-video.js?v=91"></script>
-<script src="js/sm-penflight.js?v=2"></script>
+<script src="../js/deck.js?v=99"></script>
+<script src="js/sm-video.js?v=93"></script>
+<script src="js/sm-challenges.js?v=4"></script>
+<script src="js/sm-trace-handoff.js?v=1"></script>
+<script src="js/sm-penflight.js?v=3"></script>
 <script src="js/sm-overview.js?v=91"></script>
 <script src="js/sm-concept.js?v=91"></script>
-<script src="js/sm-nav.js?v=102"></script>
+<script src="js/sm-nav.js?v=103"></script>
 </body>
 </html>
