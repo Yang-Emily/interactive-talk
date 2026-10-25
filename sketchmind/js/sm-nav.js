@@ -19,9 +19,13 @@
     // a slide's data-hud replaces a feature's name, or follows a section's name
     const all = document.querySelectorAll('section.slide:not([data-skip])');
     const sub = all[cur]?.dataset.hud;
-    // a feature's slides that carry data-hud become steps (d.1, d.2, …) with one dot per step
-    const stepItems = s ? s.items.filter((i) => all[i].dataset.hud) : [];
-    const k = stepItems.indexOf(cur), steps = stepItems.length > 1 && k >= 0;
+    // a feature's slides that carry data-hud become steps (d.1, d.2, …) with one dot per step;
+    // a slide marked data-hud-cont stays on the step before it
+    const stepList = [];
+    (s ? s.items.filter((i) => all[i].dataset.hud) : []).forEach((i) => {
+      if (all[i].hasAttribute('data-hud-cont') && stepList.length) stepList[stepList.length - 1].push(i); else stepList.push([i]);
+    });
+    const k = stepList.findIndex((st) => st.includes(cur)), steps = stepList.length > 1 && k >= 0;
     // likewise a numbered section whose slides all carry data-hud is split into a, b, …
     const parts = !s && g && g.mark && !isSub(g.mark) && g.items.length > 1 && g.items.every((i) => all[i].dataset.hud);
     const p = parts ? g.items.indexOf(cur) : -1;
@@ -31,7 +35,7 @@
     const dots = parts ? `<span class="segs">${
       g.items.map((i, j) => `<i class="${j === p ? 'now' : j < p ? 'done' : ''}" title="${String.fromCharCode(97 + j)} ${esc(all[i].dataset.hud)}"></i>`).join('')
     }</span>` : steps ? `<span class="segs">${
-      stepItems.map((i, j) => `<i class="${j === k ? 'now' : j < k ? 'done' : ''}" title="${s.mark}.${j + 1} ${esc(all[i].dataset.hud)}"></i>`).join('')
+      stepList.map((st, j) => `<i class="${j === k ? 'now' : j < k ? 'done' : ''}" title="${s.mark}.${j + 1} ${esc(all[st[0]].dataset.hud)}"></i>`).join('')
     }</span>` : s ? `<span class="segs">${
       g.subs.map((x) => `<i class="${x === s ? 'now' : x.items[0] < cur ? 'done' : ''}" title="${x.mark} ${esc(x.name)}"></i>`).join('')
     }</span>` : '';
