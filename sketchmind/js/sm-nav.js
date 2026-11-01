@@ -42,7 +42,7 @@
     // backup slides (data-backup) are not counted: the main talk is numbered 1..N, backups show no number
     const firstBackup = [...all].findIndex((x) => x.hasAttribute('data-backup'));
     const mainTotal = firstBackup < 0 ? total : firstBackup;
-    const pg = cur < mainTotal ? `<span class="pg"><b>${cur + 1}</b><span class="of">/ ${mainTotal}</span></span>` : '';
+    const pg = cur > 0 && cur < mainTotal ? `<span class="pg"><b>${cur + 1}</b><span class="of">/ ${mainTotal}</span></span>` : '';
     hud.innerHTML = `<span class="where">${where}</span>${dots}${pg}`;
   }
   document.addEventListener('deck:sync', (e) => renderHud(e.detail));

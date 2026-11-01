@@ -13,7 +13,48 @@
     const fast = (sec.dataset.fast || '').split(';').map((x) => x.trim()).filter(Boolean).map((x) => x.split(/\s+/).map(Number));
     const rateAt = (t) => (fast.some(([a, b]) => t >= a && t < b) ? rate * FAST : rate);
     const id = sec.dataset.demo;
+    function annotations(k) {
+      if (id === 'rec-8-10') {
+        sec.dataset.annotationBeat = k;
+        const v = sec.querySelector('video');
+        const update = () => sec.classList.toggle('show-counterexample', +sec.dataset.annotationBeat === 1 && v.currentTime >= 50.1);
+        if (!v.dataset.counterexampleAnnotationBound) {
+          v.addEventListener('timeupdate', update);
+          v.addEventListener('seeked', update);
+          v.dataset.counterexampleAnnotationBound = 'true';
+        }
+        update();
+        return;
+      }
+      if (id === 'rec-5-6') {
+        sec.classList.toggle('show-merge', k === 1);
+        sec.dataset.annotationBeat = k;
+        const v = sec.querySelector('video');
+        const update = () => sec.classList.toggle('show-new-pen', +sec.dataset.annotationBeat >= 2 && v.currentTime >= 39.1);
+        if (!v.dataset.mergeAnnotationsBound) {
+          v.addEventListener('timeupdate', update);
+          v.addEventListener('seeked', update);
+          v.dataset.mergeAnnotationsBound = 'true';
+        }
+        update();
+        return;
+      }
+      if (id !== 'rec-0-5') return;
+      sec.dataset.annotationBeat = k;
+      const v = sec.querySelector('video');
+      const update = () => {
+        sec.classList.toggle('show-pens', +sec.dataset.annotationBeat === 3 && v.currentTime >= cuts[3] - 0.1);
+        sec.classList.toggle('show-record', +sec.dataset.annotationBeat === 7 && v.currentTime >= cuts[7] - 0.1);
+      };
+      if (!v.dataset.annotationsBound) {
+        v.addEventListener('timeupdate', update);
+        v.addEventListener('seeked', update);
+        v.dataset.annotationsBound = 'true';
+      }
+      update();
+    }
     function caption(ctx, k) {
+      annotations(k);
       const cumulative = sec.dataset.capmode === 'cumulative';   // earlier captions stay lit
       sec.querySelectorAll('.cap[data-beat]').forEach((c) => c.classList.toggle('on', cumulative ? +c.dataset.beat <= k : +c.dataset.beat === k));
     }
@@ -23,12 +64,18 @@
     }
     function seek(ctx, t) {
       stop(ctx); const v = ctx.v; v.pause();
-      const go = () => { try { v.currentTime = Math.min(t, (v.duration || t + 1) - 0.05); } catch (e) {} };
+      const go = () => { try {
+        const target = Math.min(t, (v.duration || t + 1) - 0.05);
+        if (Math.abs(v.currentTime - target) > 0.12) v.currentTime = target;
+      } catch (e) {} };
       v.readyState >= 1 ? go() : v.addEventListener('loadedmetadata', go, { once: true });
     }
     function play(ctx, from, to) {
+      if (from === to) { seek(ctx, to); return; }
       stop(ctx); const v = ctx.v; v.pause();
-      v.currentTime = from; v.playbackRate = rateAt(from); v.play().catch(() => {});
+      // Adjacent beats already pause at this cut; seeking again can flash while decoding.
+      if (Math.abs(v.currentTime - from) > 0.12) v.currentTime = from;
+      v.playbackRate = rateAt(from); v.play().catch(() => {});
       // a timer plus timeupdate: rAF alone stalls when the window is in the background
       const tick = () => {
         if (v.currentTime >= to - 0.04 || v.ended) { v.pause(); stop(ctx); if (Math.abs(v.currentTime - to) > 0.1) v.currentTime = to; return; }
