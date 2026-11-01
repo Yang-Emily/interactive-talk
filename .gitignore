@@ -9,3 +9,6 @@ tools/
 .DS_Store
 .vscode/
 node_modules/
+
+# Local slide decks, not hosted
+assets/Aptitude_colloquium_presentation_final*.pptx
